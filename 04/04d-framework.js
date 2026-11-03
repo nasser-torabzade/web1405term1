@@ -14,6 +14,15 @@ function framework(){
                 console.log("------------------------");
                 console.log("url: ", request.url);
 
+                request.on("data", function(){
+                    console.log("data");
+                });
+
+                request.on("end", function(){
+                    console.log("end");
+                });
+
+
                 let found = false;
 
                 for(let item of controllers){
