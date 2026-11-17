@@ -4,37 +4,6 @@ import { writeFile, readFile, unlink, rmdir } from 'node:fs';
 const app = framework();
 const port = 3000;
 
-function checkUser(request, anghezi){
-    readFile('db.json', function(error, fileData){
-        if(error){
-            console.log("error reading db.json", error)
-            response.writeHead(500);
-            response.write("error reading db.json");
-            response.end();
-        }
-        else{
-            fileData = fileData.toString();
-            fileData = JSON.parse(fileData);
-            let found = false;
-            for(let x of fileData.data){
-                if( x.name === user &&
-                    x.pass === pass &&
-                    x.type === 'admin'
-                ){
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-   
-            }
-            else{
-
-            }
-        }
-    });
-}
-
 app.get('sum', function(request, response){
     let items = request.url.split("/");
     response.writeHead(200);
@@ -248,9 +217,9 @@ app.delete('user', function(request, response){
                 }
             }
             if(!found){
-                console.log("invalid user and/or pass.111", user, pass);
+                console.log("invalid user and/or pass", user, pass);
                 response.writeHead(403);
-                response.write("invalid user and/or pass.111");
+                response.write("invalid user and/or pass");
                 response.end();
             }
             else{

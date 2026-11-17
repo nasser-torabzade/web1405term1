@@ -9,7 +9,7 @@ function checkUser(request, callback){
     let pass = request.headers.pass;
     readFile('db.json', function(error, fileData){
         if(error){
-            console.log("error reading db.json", error)
+            console.log("checkUser: error reading db.json", error)
             callback(error, null)
         }
         else{
@@ -224,68 +224,69 @@ app.delete('user', function(request, response){
     let items = request.url.split("/");
     let userId = items[2];
     
-
     // فاز احراز هویت کاربر
-
-    
-        checkUser(request, function(error, result){
-            if(error){
-                console.log("system error")
+    checkUser(request, function(error, result){
+        if(error){
+            console.log("system error")
+        }
+        else{
+            if(result === false){
+                console.log("invalid user and/or pass", user, pass);
+                response.writeHead(403);
+                response.write("invalid user and/or pass");
+                response.end();
             }
             else{
-                if(result === false){
-                    console.log("admin not found")
-                }
-                else{
-                    console.log("admin found")
-                    readFile('db.json', function(error, fileData){
-                        if(error){
-                            console.log("error reading db.json", error)
-                            response.writeHead(500);
-                            response.write("error reading db.json");
+                //فاز انجام کار
+                console.log("inside «app.delete('user', ...» : admin found")
+                readFile('db.json', function(error, fileData){
+                    if(error){
+                        console.log("error reading db.json", error)
+                        response.writeHead(500);
+                        response.write("error reading db.json");
+                        response.end();
+                    }
+                    else{
+                        fileData = fileData.toString();
+                        fileData = JSON.parse(fileData);
+
+                        let found = false;
+                        for(let i=0; i<fileData.data.length; i++){
+                            if(fileData.data[i].id === userId){
+                            found = true;
+                            fileData.data.splice(i, 1);
+                            }
+                        }
+
+                        if(!found){
+                            console.log("user not found")
+                            response.writeHead(404);
+                            response.write("user not found");
                             response.end();
                         }
                         else{
-                            fileData = fileData.toString();
-                            fileData = JSON.parse(fileData);
+                            fileData = JSON.stringify(fileData);
 
-                            let found = false;
-                            for(let i=0; i<fileData.data.length; i++){
-                                if(fileData.data[i].id === userId){
-                                found = true;
-                                fileData.data.splice(i, 1);
+                            writeFile('db.json', fileData, function(error){
+                                if(error){
+                                    console.log("error reading db.json", error)
+                                    response.writeHead(500);
+                                    response.write("error reading db.json");
+                                    response.end();
                                 }
-                            }
-
-                            if(!found){
-                                console.log("user not found")
-                                response.writeHead(404);
-                                response.write("user not found");
-                                response.end();
-                            }
-                            else{
-                                fileData = JSON.stringify(fileData);
-
-                                writeFile('db.json', fileData, function(error){
-                                    if(error){
-                                        console.log("error reading db.json", error)
-                                        response.writeHead(500);
-                                        response.write("error reading db.json");
-                                        response.end();
-                                    }
-                                    else{
-                                        console.log("removeUser done")
-                                        response.writeHead(200);
-                                        response.write("removeUser done");
-                                        response.end();
-                                    }
-                                });
-                            }
+                                else{
+                                    console.log("removeUser done")
+                                    response.writeHead(200);
+                                    response.write("removeUser done");
+                                    response.end();
+                                }
+                            });
                         }
-                    });
-                }
+                    }
+                });
             }
-        });
+        }
+    });
 
                 
 });
