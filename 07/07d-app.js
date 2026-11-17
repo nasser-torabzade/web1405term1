@@ -227,7 +227,10 @@ app.delete('user', function(request, response){
     // فاز احراز هویت کاربر
     checkUser(request, function(error, result){
         if(error){
-            console.log("system error")
+            console.log("error reading db.json", error)
+            response.writeHead(500);
+            response.write("error reading db.json");
+            response.end();
         }
         else{
             if(result === false){
@@ -239,56 +242,58 @@ app.delete('user', function(request, response){
             else{
                 //فاز انجام کار
                 console.log("inside «app.delete('user', ...» : admin found")
-                readFile('db.json', function(error, fileData){
-                    if(error){
-                        console.log("error reading db.json", error)
-                        response.writeHead(500);
-                        response.write("error reading db.json");
-                        response.end();
-                    }
-                    else{
-                        fileData = fileData.toString();
-                        fileData = JSON.parse(fileData);
-
-                        let found = false;
-                        for(let i=0; i<fileData.data.length; i++){
-                            if(fileData.data[i].id === userId){
-                            found = true;
-                            fileData.data.splice(i, 1);
-                            }
-                        }
-
-                        if(!found){
-                            console.log("user not found")
-                            response.writeHead(404);
-                            response.write("user not found");
-                            response.end();
-                        }
-                        else{
-                            fileData = JSON.stringify(fileData);
-
-                            writeFile('db.json', fileData, function(error){
-                                if(error){
-                                    console.log("error reading db.json", error)
-                                    response.writeHead(500);
-                                    response.write("error reading db.json");
-                                    response.end();
-                                }
-                                else{
-                                    console.log("removeUser done")
-                                    response.writeHead(200);
-                                    response.write("removeUser done");
-                                    response.end();
-                                }
-                            });
-                        }
-                    }
-                });
+                next();
             }
         }
     });
 
-                
+    function next(){
+        readFile('db.json', function(error, fileData){
+            if(error){
+                console.log("error reading db.json", error)
+                response.writeHead(500);
+                response.write("error reading db.json");
+                response.end();
+            }
+            else{
+                fileData = fileData.toString();
+                fileData = JSON.parse(fileData);
+
+                let found = false;
+                for(let i=0; i<fileData.data.length; i++){
+                    if(fileData.data[i].id === userId){
+                    found = true;
+                    fileData.data.splice(i, 1);
+                    }
+                }
+
+                if(!found){
+                    console.log("user not found")
+                    response.writeHead(404);
+                    response.write("user not found");
+                    response.end();
+                }
+                else{
+                    fileData = JSON.stringify(fileData);
+
+                    writeFile('db.json', fileData, function(error){
+                        if(error){
+                            console.log("error reading db.json", error)
+                            response.writeHead(500);
+                            response.write("error reading db.json");
+                            response.end();
+                        }
+                        else{
+                            console.log("removeUser done")
+                            response.writeHead(200);
+                            response.write("removeUser done");
+                            response.end();
+                        }
+                    });
+                }
+            }
+        });
+    }
 });
 
 //app.get('editUser', function(request, response)
