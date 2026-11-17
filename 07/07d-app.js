@@ -234,7 +234,7 @@ app.delete('user', function(request, response){
         }
         else{
             if(result === false){
-                console.log("invalid user and/or pass", user, pass);
+                console.log("invalid user and/or pass");
                 response.writeHead(403);
                 response.write("invalid user and/or pass");
                 response.end();
