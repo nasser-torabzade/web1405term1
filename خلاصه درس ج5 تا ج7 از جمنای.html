@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش گام به گام Node.js (با سینتکس هایلایت و دستورات جدید)</title>
+    <!-- PrismJS Theme (Tomorrow Night) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.9; padding: 20px; background-color: #f8fafc; color: #1e293b; font-size: 16px; margin: 0; }
+        h1 { text-align: center; color: #0f172a; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 1.1em; }
+        .tabs { display: flex; flex-wrap: wrap; border-bottom: 3px solid #3b82f6; margin-bottom: 20px; }
+        .tab-btn { background-color: #e2e8f0; border: none; padding: 12px 20px; margin-left: 5px; margin-bottom: 5px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 16px; font-weight: bold; color: #475569; transition: 0.2s; }
+        .tab-btn:hover { background-color: #cbd5e1; }
+        .tab-btn.active { background-color: #3b82f6; color: white; }
+        .tab-content { display: none; background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: none; }
+        .tab-content.active { display: block; }
+        .exercise { border: 1px solid #e2e8f0; border-right: 6px solid #10b981; border-radius: 8px; padding: 20px; margin-bottom: 35px; background-color: #fcfcfc; }
+        .exercise h3 { margin-top: 0; color: #047857; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; font-size: 1.3em; }
+        .concept-badge { background-color: #3b82f6; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; font-weight: normal; line-height: 1.2; }
+        .diff-badge { background-color: #f59e0b; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; font-weight: normal; line-height: 1.2; }
+        pre[class*="language-"] { border-radius: 8px; border-left: 4px solid #3b82f6; direction: ltr; font-size: 15px; text-align: left; margin: 15px 0; }
+        .section-title { color: #1e293b; font-weight: bold; margin-top: 25px; margin-bottom: 8px; border-right: 3px solid #3b82f6; padding-right: 10px; font-size: 1.1em; }
+        .commands-box { background-color: #fdfce8; border: 1px dashed #ca8a04; border-radius: 6px; padding: 15px; margin-top: 15px; }
+        .commands-box h4 { margin: 0 0 10px 0; color: #854d0e; font-size: 1em; }
+        .commands-box ul { margin: 0; padding-right: 20px; }
+        .commands-box li { margin-bottom: 8px; color: #422006; }
+        p { text-align: justify; margin: 12px 0; }
+        code:not([class*="language-"]) { background-color: #f1f5f9; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #b91c1c; direction: ltr; display: inline-block; }
+        ul, ol { padding-right: 22px; margin: 10px 0; }
+        li { margin-bottom: 8px; text-align: justify; }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+            .tab-btn {
+                margin-left: 0;
+                margin-bottom: 8px;
+                border-radius: 8px;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+            .tab-content {
+                padding: 18px;
+                border-radius: 8px;
+                border-top: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>آموزش گام به گام Node.js</h1>
+    <div class="subtitle">تولید شده توسط gemini بر مبنای جلسات 5 تا 7 از تدریس ناصر تراب‌زاده در دانشگاه منتظری - مهر 1405</div>
+ 
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 's5')">جلسه ۵: حذف پوشه، Stream و دریافت Body</button>
+        <button class="tab-btn" onclick="openTab(event, 's6')">جلسه ۶: پردازش JSON و عملیات کامل CRUD</button>
+        <button class="tab-btn" onclick="openTab(event, 's7')">جلسه ۷: متدهای REST، هدرها و احراز هویت</button>
+    </div>
+
+    <!-- ==================== SESSION 5 ==================== -->
+    <div id="s5" class="tab-content active">
+        <h2>جلسه پنجم: کالبک‌های تودرتو، دریافت بدنه درخواست (Body) و شروع ذخیره‌سازی</h2>
+        <p>تا پایان جلسه چهارم، یک وب‌سرور ساده و یک مینی‌فریم‌ورک ساختیم که می‌توانست به آدرس‌هایی مثل <code>/sum/5/10</code> یا <code>/createFile/a.txt/salam</code> پاسخ دهد. اما اگر کمی عمیق‌تر فکر کنید، دو محدودیت بسیار بزرگ در سرور جلسه ۴ وجود داشت:</p>
+        <ol>
+            <li><strong>محدودیت ارسال ورودی از طریق URL:</strong> تصور کنید می‌خواهید فرم ثبت‌نام یک کاربر (شامل نام، ایمیل، رمز عبور، آدرس و...) را به سرور بفرستید. قرار دادن این اطلاعات در آدرس URL (با <code>/</code> جدا کردن) هم محدودیت طول دارد، هم ناامن است (در تاریخچه مرورگر و لاگ سرورها ذخیره می‌شود) و هم برای داده‌های ساختاریافته اصلاً مناسب نیست. پس باید یاد بگیریم چطور داده را در <strong>بدنه درخواست (Request Body)</strong> دریافت کنیم.</li>
+            <li><strong>درک عمیق‌تر از زنجیره عملیات ناهمگام:</strong> در دنیای واقعی، اغلب یک کار ناهمگام به نتیجه یک کار ناهمگام دیگر وابسته است (مثلاً «اول سعی کن فایل را پاک کنی، اگر پوشه بود بعد دستور پاک کردن پوشه را بده» یا «اول دیتابیس را بخوان، بعد که خواندن تمام شد، داده جدید را اضافه کن و دوباره بنویس»).</li>
+        </ol>
+        <p>در جلسه پنجم دقیقاً همین دو چالش بنیادین را قدم به قدم باز می‌کنیم.</p>
+
+        <!-- 05a-app -->
+        <div class="exercise">
+            <h3>تمرین package.json و 05a-app.js <span class="diff-badge">آپدیت: حذف هوشمند فایل یا پوشه</span><span class="concept-badge">مفهوم: Nested Callbacks و error.code</span></h3>
+            <div class="section-title">فایل package.json:</div>
+            <pre><code class="language-json">{
+  &quot;type&quot;: &quot;module&quot;
+}</code></pre>
+            <div class="section-title">بخش جدید در 05a-app.js (مسیر delete):</div>
+            <pre><code class="language-javascript">app.get(&#x27;delete&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    console.log(1);
+
+    unlink(items[2], function(error){
+        console.log(2);
+        if(error){
+            console.log(3);
+            console.log(&quot;deleteFile error&quot;, error);
+
+            if(error.code === &#x27;EPERM&#x27;){
+
+                console.log(4);
+                rmdir(items[2], function(error){
+                    console.log(5);
+                    if(error){
+                        console.log(6);
+                        console.log(&quot;delete error&quot;, error);
+
+                        response.writeHead(500);
+                        response.write(&quot;delete error&quot;);
+                        response.end();
+                    }
+                    else{
+                        console.log(7);
+                        console.log(&quot;delete done (folder)&quot;);
+
+                        response.writeHead(200);
+                        response.write(&quot;delete done&quot;);
+                        response.end();
+                    }
+                });
+                console.log(&#x27;xxxx&#x27;)
+            }
+        }
+        else{
+            console.log(8);
+            console.log(&quot;delete done (file)&quot;);
+
+            response.writeHead(200);
+            response.write(&quot;delete done&quot;);
+            response.end();
+        }
+    });
+    console.log(9);
+
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>package.json</code> و <code>"type": "module"</code>: فایل <code>package.json</code> شناسنامه و فایل تنظیمات پروژه Node.js است. در Node.js به صورت تاریخی دو سیستم برای <code>import</code>/<code>export</code> وجود دارد: سیستم قدیمی (CommonJS که از <code>require</code> استفاده می‌کند) و سیستم استاندارد مدرن جاوااسکریپت (ES Modules که از <code>import</code> و <code>export</code> استفاده می‌کند). نوشتن <code>"type": "module"</code> به موتور Node.js اعلام می‌کند که تمام فایل‌های <code>.js</code> در این پوشه را با استاندارد مدرن ES Modules تفسیر کن.</li>
+                    <li><code>rmdir(path, callback)</code>: تابعی از ماژول داخلی <code>node:fs</code> (مخفف Remove Directory) برای حذف یک پوشه (دایرکتوری) از روی هارد دیسک به صورت ناهمگام.</li>
+                    <li><code>error.code</code>: هرگاه یک عملیات سیستم‌عاملی (مثل کار با فایل‌ها) با شکست مواجه شود، Node.js یک آبجکت خطا به پارامتر اول کالبک (<code>error</code>) می‌دهد. این آبجکت دارای ویژگی <code>code</code> است که یک کد متنی استاندارد و قابل اعتماد برای تشخیص <em>دلیل دقیق خطا</em> است (مثلاً <code>'EPERM'</code> یعنی خطای دسترسی/عملیات غیرمجاز، مثل وقتی که می‌خواهید روی ویندوز با <code>unlink</code> یک پوشه را پاک کنید، یا <code>'ENOENT'</code> یعنی فایل یا پوشه اصلاً وجود ندارد).</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در انتهای جلسه ۴ (فایل <code>04e-app.js</code>)، یک مسیر خالی به نام <code>app.get('delete', ...)</code> گذاشته شده بود. در <code>05a-app.js</code> این مسیر کامل شده است تا به جای داشتن دو دستور مجزا (یکی برای فایل و یکی برای پوشه)، یک مسیر هوشمند داشته باشیم که هم فایل را پاک کند و هم پوشه را.</p>
+            <div class="section-title">توضیح گام به گام و عمیق (کالبدشکافی اجرای ناهمگام تودرتو):</div>
+            <p>بیایید مثل یک مهندس سیستم فکر کنیم: وقتی کاربر آدرس <code>http://localhost:3000/delete/myFolder</code> را صدا می‌زند، سرور در لحظه اول هیچ ایده‌ای ندارد که <code>myFolder</code> یک فایل است یا یک پوشه! در سیستم‌عامل، دستور حذف فایل (<code>unlink</code>) با دستور حذف پوشه (<code>rmdir</code>) فرق دارد.</p>
+            <p>استراتژی مدرس در این تمرین این است: «اول خوش‌بینانه فرض کن هدف یک فایل است و <code>unlink</code> را صدا بزن. اگر موفق شد که عالی! اگر سیستم‌عامل خطا داد و کد خطا <code>EPERM</code> بود، متوجه می‌شویم که این یک پوشه بوده؛ پس حالا داخل همان بخش خطا، <code>rmdir</code> را صدا می‌زنیم تا پوشه را پاک کند.»</p>
+            <p>اما مهم‌ترین درس این تمرین، <strong>ترتیب چاپ شدن اعداد 1 تا 9 و 'xxxx'</strong> است. اگر هنوز مفهوم ناهمگام (Asynchronous) و <strong>Event Loop</strong> را عمیقاً حس نکرده‌اید، این دو سناریو را خط به خط دنبال کنید:</p>
+            <ul>
+                <li><strong>سناریوی ۱ (وقتی هدف یک «فایل» است، مثلاً <code>/delete/a.txt</code>):</strong>
+                    <ol>
+                        <li>وارد کنترلر می‌شویم ← <code>1</code> چاپ می‌شود.</li>
+                        <li>به دستور <code>unlink</code> می‌رسیم. Node.js این دستور را به سیستم‌عامل (از طریق کتابخانه داخلی <code>libuv</code>) می‌سپارد تا روی هارد انجام شود، اما <strong>به هیچ وجه منتظر تمام شدنش نمی‌ماند!</strong></li>
+                        <li>بلافاصله به انتهای تابع می‌پرد و <code>9</code> را چاپ می‌کند! (دقت کنید: تابع کنترلر همین‌جا تمام شد، در حالی که هنوز فایل پاک نشده و پاسخی به مرورگر نرفته است).</li>
+                        <li>چند میلی‌ثانیه بعد، هارد دیسک کار پاک کردن فایل را تمام می‌کند و خبرش را به Event Loop می‌دهد. حالا کالبک <code>unlink</code> اجرا می‌شود ← <code>2</code> چاپ می‌شود.</li>
+                        <li>چون خطایی رخ نداده (<code>error</code> برابر <code>null</code> است)، وارد <code>else</code> می‌شود ← <code>8</code> و <code>"delete done (file)"</code> چاپ می‌شوند و پاسخ <code>200</code> به مرورگر می‌رود.</li>
+                        <li><strong>ترتیب نهایی خروجی در کنسول:</strong> <code>1</code> ← <code>9</code> ← <code>2</code> ← <code>8</code>.</li>
+                    </ol>
+                </li>
+                <li><strong>سناریوی ۲ (وقتی هدف یک «پوشه» است، مثلاً <code>/delete/testDir</code>):</strong>
+                    <ol>
+                        <li>مثل قبل، اول <code>1</code> و بلافاصله <code>9</code> چاپ می‌شوند.</li>
+                        <li>سیستم‌عامل پس از بررسی هارد متوجه می‌شود <code>testDir</code> پوشه است و خطای <code>EPERM</code> برمی‌گرداند. کالبک <code>unlink</code> اجرا می‌شود ← <code>2</code> چاپ می‌شود.</li>
+                        <li>وارد <code>if(error)</code> می‌شود ← <code>3</code> چاپ می‌شود. چون <code>error.code === 'EPERM'</code> برقرار است، وارد آن شرط می‌شود ← <code>4</code> چاپ می‌شود.</li>
+                        <li>حالا به یک عملیات ناهمگام <em>دوم</em> یعنی <code>rmdir</code> می‌رسد! دوباره Node.js کار حذف پوشه را به سیستم‌عامل می‌سپارد و <strong>منتظر نمی‌ماند</strong>؛ بلافاصله خط بعدی را اجرا می‌کند و <code>'xxxx'</code> را چاپ می‌کند!</li>
+                        <li>چند میلی‌ثانیه بعد، وقتی سیستم‌عامل پوشه را پاک کرد، کالبک درونی <code>rmdir</code> صدا زده می‌شود ← <code>5</code> چاپ می‌شود. اگر پوشه خالی باشد و خطایی ندهد، وارد <code>else</code> می‌شود ← <code>7</code> و <code>"delete done (folder)"</code> چاپ می‌شوند و پاسخ <code>200</code> برای کاربر ارسال می‌شود. (اگر پوشه پر باشد یا خطای دیگری بدهد، وارد <code>6</code> شده و کد <code>500</code> برمی‌گرداند).</li>
+                        <li><strong>ترتیب نهایی خروجی در کنسول:</strong> <code>1</code> ← <code>9</code> ← <code>2</code> ← <code>3</code> ← <code>4</code> ← <code>xxxx</code> ← <code>5</code> ← <code>7</code>.</li>
+                    </ol>
+                </li>
+            </ul>
+            <p><strong>نکته طلایی دیباگینگ (چشمان یک برنامه‌نویس حرفه‌ای):</strong> به شرط <code>if(error.code === 'EPERM')</code> دقت کنید. اگر کاربر نام فایلی را بدهد که اصلاً وجود نداشته باشد (خطای <code>ENOENT</code>)، شرط <code>EPERM</code> غلط می‌شود و چون <code>else</code> ندارد، هیچ <code>response.end()</code> اجرا نمی‌شود و مرورگر تا ابد در حالت چرخش (Loading) گیر می‌کند! در برنامه‌نویسی سرور همیشه باید مطمئن شوید در <strong>تمام مسیرهای ممکنِ شرط‌ها</strong> حتماً یک بار <code>response.end()</code> صدا زده می‌شود.</p>
+        </div>
+
+        <!-- 05a-framework -->
+        <div class="exercise">
+            <h3>تمرین 05a-framework.js <span class="diff-badge">آپدیت: شنود بدنه درخواست</span><span class="concept-badge">مفهوم: Stream و Event Listener</span></h3>
+            <div class="section-title">کد کامل 05a-framework.js:</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+
+function framework(){
+    let controllers = [];
+    let app = {
+        get: function(path, func){
+            controllers.push({
+                name: path,
+                func: func
+            })
+        },
+        listen: function(port, userCallback){
+            function serverCallback(request, response){
+                console.log(&quot;------------------------&quot;);
+                console.log(&quot;url: &quot;, request.url);
+
+                let data = &quot;&quot;;
+                request.on(&quot;data&quot;, function(part){
+                    data = data + part;
+                });
+                request.on(&quot;end&quot;, function(){
+                    console.log(&quot;data&quot;, data);
+                });
+
+                let found = false;
+                for(let item of controllers){
+                    if(request.url.startsWith(&#x27;/&#x27; + item.name)){
+                        found = true;
+                        item.func(request, response);
+                        break;
+                    }
+                }
+
+                if(!found){
+                    console.log(&quot;path not found.&quot;);
+                }
+            }
+            let server = createServer(serverCallback);
+            server.listen(port, userCallback);
+        }
+    }
+    return app;
+}
+
+export { 
+    framework 
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>request.on("data", function(part){ ... })</code>: ثبت یک «شنونده رویداد» (Event Listener) روی شیء <code>request</code> برای رویداد <code>"data"</code>. هر بار که یک بسته (تکه یا Chunk) از بدنه درخواست از طریق شبکه به سرور برسد، Node.js به صورت خودکار این تابع را صدا می‌زند و آن تکه را در ورودی <code>part</code> قرار می‌دهد.</li>
+                    <li><code>request.on("end", function(){ ... })</code>: ثبت شنونده برای رویداد <code>"end"</code>. این رویداد دقیقاً یک بار و زمانی رخ می‌دهد که انتقال کل بدنه درخواست از سمت کلاینت به پایان رسیده باشد و دیگر هیچ تکه‌ای در راه نباشد.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در فایل <code>04d-framework.js</code> ما فقط به <code>request.url</code> نگاه می‌کردیم. در <code>05a-framework.js</code> برای اولین بار شنود بدنه درخواست (Request Body) با استفاده از دو رویداد <code>"data"</code> و <code>"end"</code> به هسته فریم‌ورک اضافه شده است.</p>
+            <div class="section-title">توضیح گام به گام و عمیق (چرا Stream؟ چرا یکجا نمی‌گیریم؟):</div>
+            <p>برای فهمیدن این کد باید بدانید یک درخواست HTTP که از مرورگر یا نرم‌افزاری مثل Postman به سرور می‌آید، از سه بخش تشکیل شده است:</p>
+            <ol>
+                <li><strong>خط اول (Start Line):</strong> شامل متد و آدرس URL (مثل <code>/signup</code>).</li>
+                <li><strong>سربرگ‌ها (Headers):</strong> اطلاعات جانبی درباره درخواست (در جلسه ۷ کامل بررسی می‌کنیم).</li>
+                <li><strong>بدنه (Body):</strong> داده‌های اصلی که کاربر می‌فرستد (مثلاً متن یک مقاله، اطلاعات فرم ثبت‌نام یا یک فایل عکس).</li>
+            </ol>
+            <p>حالا یک سوال بسیار مهم: <strong>چرا در Node.js نمی‌توانیم خیلی ساده بنویسیم <code>let data = request.body</code> و خلاص؟ چرا این همه زحمت برای <code>request.on("data")</code> می‌کشیم؟</strong></p>
+            <p>پاسخ به ساختار شبکه (TCP) و معماری Node.js برمی‌گردد! وقتی کلاینت می‌خواهد ۱ مگابایت یا ۵۰۰ مگابایت داده بفرستد، اینترنت این داده را یکجا نمی‌فرستد؛ بلکه آن را به تکه‌های کوچک (Packet / Chunk، مثلاً چند کیلوبایتی) می‌شکند و پشت سر هم در سیم شبکه می‌فرستد. از طرفی Node.js برای این طراحی شده که با حافظه RAM کم، هزاران کاربر هم‌زمان را پاسخ دهد. پس به محض اینکه <em>سرِ</em> درخواست (URL و Headerها) رسید، تابع <code>serverCallback</code> را صدا می‌زند و شیء <code>request</code> را به شکل یک <strong>جریان داده (Stream)</strong> در اختیار ما می‌گذارد—دقیقاً مثل شیر آبی که تازه باز شده و آب قطره قطره (تکه تکه) از آن بیرون می‌آید.</p>
+            <p>در کد بالا چه کار کرده‌ایم؟ یک سطل خالی به نام <code>let data = ""</code> گذاشته‌ایم. هر بار که تکه‌ای از شبکه می‌رسد (رویداد <code>"data"</code>)، آن تکه (<code>part</code>) را داخل سطل می‌ریزیم (<code>data = data + part</code>؛ نکته فنی: <code>part</code> در اصل یک <code>Buffer</code> باینری است، اما وقتی با رشته خالی <code>""</code> جمع می‌شود، جاوااسکریپت آن را خودکار به متن تبدیل کرده و می‌چسباند). وقتی شیر آب بسته شد و آخرین قطره هم ریخت (رویداد <code>"end"</code>)، مطمئن می‌شویم کل پیام کامل شده و آن را چاپ می‌کنیم.</p>
+            <p><strong>هشدار! یک باگ معماری عمدی در 05a-framework.js وجود دارد:</strong> با دقت به محل قرارگیری حلقه <code>for(let item of controllers)</code> نگاه کنید! این حلقه <strong>بیرون</strong> از <code>request.on("end")</code> قرار دارد. یادتان هست که <code>request.on(...)</code> ناهمگام است؟ یعنی Node.js فقط شنونده‌ها را ثبت می‌کند و بدون اینکه صبر کند داده‌ها از شبکه برسند، بلافاصله می‌رود سراغ حلقه <code>for</code> و کنترلر را اجرا می‌کند! در آن لحظه هنوز <code>data</code> خالی است (حتی اصلاً به کنترلر هم داده نشده). این مشکل را مدرس عمداً نشان می‌دهد تا ضرورت تغییر در فایل <code>05b-framework.js</code> را کاملاً لمس کنید.</p>
+        </div>
+
+        <!-- 05b-framework & 05b-app -->
+        <div class="exercise">
+            <h3>تمرین 05b-framework.js و 05b-app.js <span class="diff-badge">آپدیت: حل باگ ترتیب اجرا و انتقال data</span><span class="concept-badge">مفهوم: چسباندن داده به request</span></h3>
+            <div class="section-title">کد کامل 05b-framework.js:</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+
+function framework(){
+    let controllers = [];
+    let app = {
+        get: function(path, func){
+            controllers.push({
+                name: path,
+                func: func
+            })
+        },
+        listen: function(port, userCallback){
+            function serverCallback(request, response){
+                console.log(&quot;---------------------------------------------&quot;);
+                console.log(&quot;(framework) url: &quot;, request.url);
+
+                let data = &quot;&quot;;
+                request.on(&quot;data&quot;, function(part){
+                    data = data + part;
+                });
+                request.on(&quot;end&quot;, function(){
+                    console.log(&quot;(framework) data:&quot;, data);
+
+                    let found = false;
+                    request.data = data;
+                    request.myKey = &#x27;salam!&#x27;;
+                    for(let item of controllers){
+                        if(request.url.startsWith(&#x27;/&#x27; + item.name)){
+                            console.log(&quot;(framework) controller: &quot;, item.name);
+                            found = true;
+                            item.func(request, response);
+                            break;
+                        }
+                    }
+                    if(!found){
+                        console.log(&quot;path not found.&quot;);
+                    }
+                });
+            }
+            let server = createServer(serverCallback);
+            server.listen(port, userCallback);
+        }
+    }
+    return app;
+}
+
+export { 
+    framework 
+}</code></pre>
+            <div class="section-title">مسیر جدید در 05b-app.js:</div>
+            <pre><code class="language-javascript">app.get(&#x27;signup&#x27;, function(req, res){
+    console.log(&#x27;--inside signup--------req.data&#x27;, req.data);
+    console.log(&#x27;--inside signup--------req.anghezi&#x27;, req.myKey);
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>request.data = data;</code>: تعریف و مقداردهی یک ویژگی (Property) جدید روی شیء <code>request</code> به صورت پویا (Dynamic).</li>
+                    <li><code>request.myKey = 'salam!';</code>: مثالی آموزشی برای اثبات اینکه شیء <code>request</code> هیچ جادوی خاصی ندارد و هر کلید دلخواهی که فریم‌ورک به آن اضافه کند، عیناً در کنترلر قابل خواندن است.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>دو تغییر حیاتی در <code>05b-framework.js</code> رخ داده است: اول اینکه کل منطق مسیریابی (حلقه <code>for</code> و فراخوانی <code>item.func</code>) به <strong>درون کالبک رویداد <code>"end"</code></strong> منتقل شده است. دوم اینکه متغیر <code>data</code> به عنوان یک ویژگی به نام <code>request.data</code> روی شیء <code>request</code> سوار شده است. در <code>05b-app.js</code> نیز مسیر جدید <code>signup</code> اضافه شده تا ببینیم چطور می‌توان این داده را دریافت کرد.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>بیایید جریان حیات یک درخواست را در این نسخه جدید ردیابی کنیم:</p>
+            <ol>
+                <li>کاربر (مثلاً از طریق Postman) درخواستی به <code>/signup</code> می‌فرستد و در بدنه آن می‌نویسد <code>{"name": "nasser", "email": "nasser@x.com"}</code>.</li>
+                <li>تابع <code>serverCallback</code> اجرا می‌شود، <code>data</code> خالی است، و دو شنونده <code>"data"</code> و <code>"end"</code> ثبت می‌شوند. <strong>فعلاً هیچ کنترلری اجرا نمی‌شود!</strong></li>
+                <li>تکه‌های بدنه از شبکه می‌رسند و در <code>data</code> جمع می‌شوند.</li>
+                <li>وقتی کل بدنه کامل رسید، رویداد <code>"end"</code> فعال می‌شود. حالا فریم‌ورک دو کلید جدید روی آبجکت <code>request</code> می‌چسباند: <code>request.data = data</code> و <code>request.myKey = 'salam!'</code>.</li>
+                <li>سپس حلقه <code>for</code> کنترلر <code>signup</code> را پیدا می‌کند و همان آبجکت <code>request</code> (که حالا پر از اطلاعات است!) را به تابع کنترلر پاس می‌دهد.</li>
+            </ol>
+            <p><strong>دو نکته ظریف جاوااسکریپتی که باید از <code>05b-app.js</code> یاد بگیرید:</strong></p>
+            <ul>
+                <li><strong>انتقال با ارجاع (Pass by Reference):</strong> در جاوااسکریپت، آبجکت‌ها در حافظه کپی نمی‌شوند بلکه آدرسشان (رفرنس) پاس داده می‌شود. بنابراین هر ویژگی که فریم‌ورک به <code>request</code> اضافه کند (مثل <code>request.data</code> یا <code>request.myKey</code>)، دقیقاً در کنترلر هم دیده می‌شود.</li>
+                <li><strong>اسم پارامترها مهم نیست، ترتیبشان مهم است!</strong> نگاه کنید در فریم‌ورک پارامترها <code>(request, response)</code> نام داشتند، اما در <code>05b-app.js</code> در مسیر <code>signup</code> مدرس نوشته <code>function(req, res)</code>! این هیچ فرقی نمی‌کند؛ اولین پارامتر همیشه همان شیء درخواست است (چه اسمش را بگذارید <code>request</code> و چه <code>req</code>). همچنین در <code>console.log('--inside signup--------req.anghezi', req.myKey)</code> کلمه <code>req.anghezi</code> صرفاً یک متن برچسب برای چاپ است و مقدار واقعی از <code>req.myKey</code> خوانده می‌شود. (ضمناً چون در این تست ساده <code>res.end()</code> نوشته نشده، هدف فقط دیدن خروجی در ترمینال بوده است).</li>
+            </ul>
+        </div>
+
+        <!-- 05c & 05d -->
+        <div class="exercise">
+            <h3>تمرین 05c-app.js و 05d-app.js <span class="diff-badge">آپدیت: ذخیره کاربران در db.json</span><span class="concept-badge">مفهوم: Buffer، toString و مشکل چسباندن رشته‌ها</span></h3>
+            <div class="section-title">مسیر signup در 05c-app.js (بررسی Buffer):</div>
+            <pre><code class="language-javascript">app.get(&#x27;signup&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+
+        }
+        else{
+            console.log(&#x27;fileData&#x27;, fileData)
+        }
+    });
+
+
+    // writeFile(&#x27;db.json&#x27;, request.data, function(error){
+    //     if(error){
+    //         console.log(&#x27;error&#x27;, error);
+    //
+    //         response.writeHead(500);
+    //         response.write(&quot;signup error&quot;);
+    //         response.end();
+    //     }
+    //     else{
+    //         console.log(&quot;signup done&quot;);
+    //
+    //         response.writeHead(200);
+    //         response.write(&quot;signup done&quot;);
+    //         response.end();
+    //     }
+    // });
+});</code></pre>
+            <div class="section-title">مسیر signup در 05d-app.js (خواندن، چسباندن و نوشتن):</div>
+            <pre><code class="language-javascript">app.get(&#x27;signup&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(200);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            let newData = fileData + request.data;
+            console.log(&#x27;newData&#x27;, newData)
+
+            writeFile(&#x27;db.json&#x27;, newData, function(error){
+                if(error){
+                    console.log(&quot;error writing db.json&quot;, error)
+
+                    response.writeHead(500);
+                    response.write(&quot;signup error&quot;);
+                    response.end();
+                }
+                else{
+                    console.log(&quot;signup done&quot;);
+
+                    response.writeHead(200);
+                    response.write(&quot;signup done&quot;);
+                    response.end();
+                }
+            });
+        }
+    });
+
+
+
+});</code></pre>
+            <div class="section-title">نتیجه ذخیره‌شده در 05/db.json:</div>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}{
+  &quot;name&quot;: &quot;nasser&quot;,
+  &quot;email&quot;: &quot;nasser@x.com&quot;
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>Buffer</code> (نوع خروجی <code>readFile</code>): وقتی <code>readFile('db.json', ...)</code> را بدون تعیین انکودینگ صدا می‌زنید، پارامتر دوم (<code>fileData</code>) یک رشته متنی نیست، بلکه یک شیء از نوع <code>Buffer</code> است که نمایانگر بایت‌های خامِ ذخیره شده روی هارد دیسک (به صورت هگزادسیمال مثل <code>&lt;Buffer 7b 0a 20 ...&gt;</code>) می‌باشد.</li>
+                    <li><code>fileData.toString()</code>: متدی روی <code>Buffer</code> که بایت‌های خام باینری را با استاندارد UTF-8 رمزگشایی کرده و به یک رشته متنی قابل خواندن (<code>String</code>) تبدیل می‌کند.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در <code>05c-app.js</code> برای اولین بار می‌خواهیم اطلاعات ثبت‌نام کاربر را به صورت دائمی (Persistent) روی هارد ذخیره کنیم تا با ری‌استارت شدن سرور از بین نرود. در <code>05d-app.js</code> عملیات «خواندن فایل قبلی + اضافه کردن کاربر جدید + نوشتن مجدد روی فایل» پیاده‌سازی می‌شود.</p>
+            <div class="section-title">توضیح گام به گام و عمیق (از حافظه موقت تا بن‌بست فایل متنی):</div>
+            <p>این دو تمرین یک داستان مهندسی بسیار آموزنده دارند که باید پله به پله درکش کنید:</p>
+            <ol>
+                <li><strong>چرا کد کامنت‌شده <code>05c-app.js</code> کار نمی‌کرد؟</strong> در ابتدا شاید فکر کنید برای ذخیره کاربر جدید کافی است بنویسیم <code>writeFile('db.json', request.data, ...)</code>. اما ماهیت دستور <code>writeFile</code> این است که <strong>کل محتوای قبلی فایل را پاک می‌کند و از صفر می‌نویسد!</strong> یعنی اگر علی ثبت‌نام کند و بعد رضا ثبت‌نام کند، اطلاعات علی برای همیشه پاک می‌شود! پس قبل از نوشتن، مجبوریم اول با <code>readFile('db.json', ...)</code> اطلاعات قبلی را بخوانیم.</li>
+                <li><strong>چرا در <code>05c</code> خروجی عجیب <code>&lt;Buffer ...&gt;</code> دیدیم؟</strong> هارد دیسک نمی‌داند درون یک فایل، متن است یا عکس یا فیلم یا فایل صوتی؛ روی هارد همه‌چیز صرفاً دنباله‌ای از صفر و یک (بایت) است. پس <code>readFile</code> به صورت پیش‌فرض همان بایت‌های خام را در قالبی به نام <code>Buffer</code> تحویل ما می‌دهد. به همین دلیل در <code>05d-app.js</code> خط <code>fileData = fileData.toString();</code> را اضافه کردیم تا این بایت‌ها به متن تبدیل شوند.</li>
+                <li><strong>مشکل بزرگ و بن‌بست در <code>05d-app.js</code> (چرا باید برویم سراغ جلسه ۶؟):</strong> در <code>05d</code> ما خیلی ساده دو متن را با علامت <code>+</code> به هم چسباندیم: <code>let newData = fileData + request.data</code>. به فایل <code>05/db.json</code> در بالا نگاه کنید! پس از چند بار ثبت‌نام، محتوای فایل شده است <code>{"name":"nasser"...}{"name":"nasser"...}</code>. این فایل از نظر ساختار <strong>JSON خراب و نامعتبر (Invalid JSON)</strong> است! نه کامایی بین کاربران هست و نه درون یک آرایه <code>[...]</code> قرار دارند. حالا از خودتان بپرسید: اگر فردا بخواهیم فقط کاربر دوم را پیدا کنیم، یا ایمیل کاربر سوم را عوض کنیم، یا یک کاربر را حذف کنیم، با چنین متن درهمی چه کار می‌توانیم بکنیم؟ عملاً هیچ! اینجاست که نیاز حیاتی به <strong>کار واقعی با آبجکت‌ها و آرایه‌های JSON</strong> در جلسه ششم متولد می‌شود.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ==================== SESSION 6 ==================== -->
+    <div id="s6" class="tab-content">
+        <h2>جلسه ششم: پردازش حرفه‌ای JSON و پیاده‌سازی کامل CRUD روی فایل</h2>
+        <p>در پایان جلسه ۵ دیدیم که ذخیره کردن اطلاعات به شکل «چسباندن رشته‌ها به هم» به بن‌بست می‌رسد. در جلسه ششم یکی از کلیدی‌ترین مفاهیم دنیای وب یعنی <strong>سریال‌سازی (Serialization) با JSON</strong> را یاد می‌گیریم و بر پایه آن، هر چهار عملیات استاندارد پایگاه داده یعنی <strong>CRUD</strong> (مخفف <strong>C</strong>reate ساختن، <strong>R</strong>ead خواندن، <strong>U</strong>pdate ویرایش و <strong>D</strong>elete حذف) را به شکل کامل روی فایل <code>db.json</code> پیاده‌سازی می‌کنیم.</p>
+
+        <!-- 06a-json-test -->
+        <div class="exercise">
+            <h3>تمرین 06a-json-test.js <span class="concept-badge">مفهوم: JSON.stringify و JSON.parse</span></h3>
+            <div class="section-title">کد کامل 06a-json-test.js:</div>
+            <pre><code class="language-javascript">let x = {
+    a: &quot;nasser&quot;,
+    b: 123
+};
+
+console.log(&quot;typeof x&quot;, typeof x, x);
+
+let str = JSON.stringify(x);
+
+console.log(&quot;typeof str&quot;, typeof str, str);
+console.log(str.a);
+
+
+let newObj = JSON.parse(str);
+
+console.log(&quot;typeof newObj&quot;, typeof newObj, newObj)
+console.log(newObj.a)</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>typeof variable</code>: عملگری در جاوااسکریپت که نوع داده یک متغیر را به صورت رشته برمی‌گرداند (مثلاً <code>"object"</code>، <code>"string"</code>، <code>"number"</code>).</li>
+                    <li><code>JSON.stringify(value)</code>: یک ساختار داده زنده جاوااسکریپتی (آبجکت یا آرایه در حافظه RAM) را به یک <strong>رشته متنی استاندارد JSON</strong> تبدیل می‌کند (عملیات Serialization).</li>
+                    <li><code>JSON.parse(text)</code>: یک رشته متنی با فرمت معتبر JSON را می‌خواند و دوباره آن را به یک <strong>آبجکت یا آرایه واقعی جاوااسکریپت</strong> در حافظه RAM تبدیل می‌کند (عملیات Deserialization).</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق (تفاوت بنیادین «آبجکت در حافظه» و «متن روی دیسک/شبکه»):</div>
+            <p>بسیاری از دانشجویان مبتدی در اینجا دچار سردرگمی می‌شوند و می‌پرسند: «اینکه ظاهرش یکی است، چه فرقی بین آبجکت و رشته JSON وجود دارد؟» بیایید یک بار برای همیشه این موضوع را عمیق بفهمیم:</p>
+            <p>یک <strong>آبجکت جاوااسکریپت</strong> (مثل <code>x</code>) یک ساختار پیچیده درون حافظه RAM موتور V8 است که قابلیت دسترسی مستقیم به کلیدها (<code>x.a</code>)، اجرای حلقه، <code>push</code> و <code>splice</code> را دارد. اما شما <em>نمی‌توانید</em> یک آبجکت حافظه RAM را مستقیماً از سیم شبکه عبور دهید یا داخل یک فایل روی هارد دیسک بنویسید؛ چون شبکه و فایل فقط <strong>رشته و بایت</strong> می‌فهمند! پس برای انتقال یا ذخیره، باید آن آبجکت را «بسته‌بندی» و تبدیل به متن کنیم (<code>JSON.stringify</code>) و در مقصد یا هنگام خواندن از فایل، دوباره «بسته‌بندی را باز کنیم» و به آبجکت زنده تبدیلش کنیم (<code>JSON.parse</code>).</p>
+            <p>حالا خروجی تک‌تک خطوط <code>06a-json-test.js</code> را با هم پیش‌بینی کنیم:</p>
+            <ul>
+                <li><code>console.log("typeof x", typeof x, x)</code> ← چاپ می‌کند <code>object</code>. اینجا <code>x</code> یک آبجکت واقعی است و <code>x.a</code> برابر <code>"nasser"</code> است.</li>
+                <li><code>let str = JSON.stringify(x)</code> ← تبدیل می‌شود به رشته <code>'{"a":"nasser","b":123}'</code>. نوع آن (<code>typeof str</code>) برابر <code>string</code> است.</li>
+                <li><code>console.log(str.a)</code> ← خروجی می‌شود <strong><code>undefined</code></strong>! چرا؟ چون به چشم انسان شبیه آبجکت است، ولی برای جاوااسکریپت <code>str</code> صرفاً یک زنجیره از ۲۲ کاراکتر متنی (مثل کلمه <code>"salam"</code>) است و رشته‌ها ویژگی‌ای به نام <code>.a</code> ندارند!</li>
+                <li><code>let newObj = JSON.parse(str)</code> ← دوباره به <code>object</code> واقعی تبدیل شد؛ بنابراین خط آخر <code>console.log(newObj.a)</code> دوباره با موفقیت <code>"nasser"</code> را چاپ می‌کند.</li>
+            </ul>
+        </div>
+
+        <!-- 06a-framework -->
+        <div class="exercise">
+            <h3>تمرین 06a-framework.js <span class="diff-badge">آپدیت: پارس خودکار JSON و مدیریت خطا</span><span class="concept-badge">مفهوم: try / catch و Helper Method</span></h3>
+            <div class="section-title">کد کامل 06a-framework.js:</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+
+function framework(){
+    let controllers = [];
+    let app = {
+        get: function(path, func){
+            controllers.push({
+                name: path,
+                func: func
+            })
+        },
+        listen: function(port, userCallback){
+            function serverCallback(request, response){
+                console.log(&quot;---------------------------------------------&quot;);
+                console.log(&quot;(framework) url: &quot;, request.url);
+
+                let data = &quot;&quot;;
+                request.on(&quot;data&quot;, function(part){
+                    data = data + part;
+                });
+                request.on(&quot;end&quot;, function(){
+                    console.log(&quot;(framework) data:&quot;, data);
+
+                    try{
+                        request.data = JSON.parse(data);
+                    }
+                    catch(e){
+                        console.log(&quot;(framework) data is not a valid JSON.&quot;);
+                        request.data = data;
+                    }
+                    request.myKey = &#x27;salam!&#x27;;
+                    response.send = function(status, message){
+                        response.writeHead(status);
+                        response.write(message);
+                        response.end();
+                    };
+                    
+                    let found = false;
+                    for(let item of controllers){
+                        if(request.url.startsWith(&#x27;/&#x27; + item.name)){
+                            console.log(&quot;(framework) controller: &quot;, item.name);
+                            found = true;
+                            item.func(request, response);
+                            break;
+                        }
+                    }
+                    if(!found){
+                        console.log(&quot;path not found.&quot;);
+                    }
+                });
+            }
+            let server = createServer(serverCallback);
+            server.listen(port, userCallback);
+        }
+    }
+    return app;
+}
+
+export { 
+    framework 
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>try { ... } catch(e) { ... }</code>: ساختار مدیریت خطای همگام (Synchronous Error Handling). اگر اجرای هر خطی داخل بلوک <code>try</code> باعث پرتاب خطا (Exception) شود، به جای اینکه کل برنامه Node.js متوقف و کرش کند، جریان اجرا فوراً به بلوک <code>catch</code> پرش می‌کند و اطلاعات خطا در <code>e</code> قرار می‌گیرد.</li>
+                    <li><code>response.send = function(status, message) { ... }</code>: تعریف یک متد کمکی (Helper Method) سفارشی روی شیء <code>response</code> در سطح فریم‌ورک تا کنترلرها مجبور نباشند هر بار سه خط <code>writeHead</code>، <code>write</code> و <code>end</code> را تکرار کنند.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در جلسه ۵، وقتی کلاینت یک JSON می‌فرستاد، <code>request.data</code> همچنان یک <strong>رشته خام</strong> بود. حالا در <code>06a-framework.js</code> فریم‌ورک هوشمند شده و قبل از تحویل درخواست به کنترلر، به صورت خودکار آن را با <code>JSON.parse(data)</code> تبدیل به یک آبجکت آماده مصرف می‌کند.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>اینجا دو درس معماری بسیار مهم نهفته است:</p>
+            <ol>
+                <li><strong>اصل DRY (تکرار نکردن کد) و مفهوم Body Parser:</strong> به جای اینکه در هر ۲۰ کنترلر برنامه بنویسیم <code>let obj = JSON.parse(request.data)</code>، این کار را یک بار برای همیشه در مرکز فریم‌ورک انجام می‌دهیم. (در دنیای واقعی، وقتی بعداً با فریم‌ورک <em>Express.js</em> کار کنید، دقیقاً همین کار را دستور <code>app.use(express.json())</code> برای شما انجام می‌دهد!).</li>
+                <li><strong>چرا <code>try / catch</code> در سرور Node.js مسئله مرگ و زندگی است؟</strong> یادتان باشد کل سرور Node.js روی <strong>یک نخ اجرایی (Single Thread)</strong> اجرا می‌شود. فرض کنید یک کاربر آدرس <code>/sum/2/3</code> را بزند که هیچ بدنه‌ای ندارد (یعنی <code>data</code> برابر <code>""</code> است)، یا یک کاربر بدجنس متن خراب <code>{"name": nasser</code> بفرستد. اگر <code>JSON.parse(data)</code> بیرون از <code>try/catch</code> باشد، یک خطای <code>SyntaxError</code> پرتاب می‌کند و <strong>کل سرور شما را برای تمام کاربران دیگر هم خاموش (Crash) می‌کند!</strong> اما با وجود <code>try/catch</code>، اگر متن ورودی JSON معتبر بود، <code>request.data</code> یک آبجکت تمیز می‌شود؛ و اگر نبود، وارد <code>catch</code> می‌شود، یک پیام در کنسول چاپ می‌کند و همان متن خام را در <code>request.data</code> قرار می‌دهد و سرور بدون هیچ آسیبی به کارش ادامه می‌دهد.</li>
+            </ol>
+        </div>
+
+        <!-- 06a-app & 06b-app -->
+        <div class="exercise">
+            <h3>تمرین 06a-app.js و 06b-app.js <span class="diff-badge">آپدیت: ساختار آرایه‌ای db.json و تولید ID</span><span class="concept-badge">مفهوم: CRUD (Create) و Math.random</span></h3>
+            <div class="section-title">مسیر signup در 06a-app.js:</div>
+            <pre><code class="language-javascript">app.get(&#x27;signup&#x27;, function(request, response){
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(200);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+            fileData.data.push(request.data);
+            let newData = JSON.stringify(fileData);
+
+            writeFile(&#x27;db.json&#x27;, newData, function(error){
+                if(error){
+                    console.log(&quot;error writing db.json&quot;, error)
+
+                    response.writeHead(500);
+                    response.write(&quot;signup error&quot;);
+                    response.end();
+                }
+                else{
+                    console.log(&quot;signup done&quot;);
+
+                    response.writeHead(200);
+                    response.write(&quot;signup done&quot;);
+                    response.end();
+                }
+            });
+        }
+    });
+
+
+
+});</code></pre>
+            <div class="section-title">تغییر در 06b-app.js (اضافه شدن تولید شناسه یکتا):</div>
+            <pre><code class="language-javascript">app.get(&#x27;signup&#x27;, function(request, response){
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(200);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+            request.data.id = 10000000 + getRandomInt(1000000);
+            fileData.data.push(request.data);
+            let newData = JSON.stringify(fileData);
+
+            writeFile(&#x27;db.json&#x27;, newData, function(error){
+                if(error){
+                    console.log(&quot;error writing db.json&quot;, error)
+
+                    response.writeHead(500);
+                    response.write(&quot;signup error&quot;);
+                    response.end();
+                }
+                else{
+                    console.log(&quot;signup done&quot;);
+
+                    response.writeHead(200);
+                    response.write(&quot;signup done&quot;);
+                    response.end();
+                }
+            });
+        }
+    });
+
+
+
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>Math.random()</code>: یک عدد اعشاری تصادفی بزرگ‌تر یا مساوی <code>0</code> و اکیداً کوچک‌تر از <code>1</code> تولید می‌کند (مثلاً <code>0.83553219...</code>).</li>
+                    <li><code>Math.floor(number)</code>: عدد اعشاری را به سمت پایین گرد می‌کند و بخش اعشاری آن را دور می‌ریزد (مثلاً <code>Math.floor(835532.19)</code> می‌شود <code>835532</code>).</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>ساختار فایل <code>db.json</code> دیگر رشته‌های به‌هم‌چسبیده نیست؛ بلکه یک فایل JSON کاملاً معتبر و تمیز با قالب <code>{"data": [ ... ]}</code> است که لیست تمام کاربران را در قالب یک آرایه نگه می‌دارد. در <code>06a-app.js</code> عملیات ثبت‌نام (Create) روی این آرایه انجام می‌شود و در <code>06b-app.js</code> به هر کاربر هنگام ثبت‌نام یک شناسه عددی یکتا (<code>id</code>) اختصاص داده می‌شود.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>چرخه ۵ مرحله‌ای <strong>خواندن ← ویرایش در حافظه ← نوشتن روی دیسک (Read-Modify-Write)</strong> در <code>06a-app.js</code> را به خاطر بسپارید، چون پایه تمام عملیات بعدی است:</p>
+            <ol>
+                <li><code>readFile('db.json', ...)</code>: بایت‌های فایل را از هارد می‌خواند (نتیجه: <code>Buffer</code>).</li>
+                <li><code>fileData = fileData.toString()</code>: بایت‌ها را به رشته متنی JSON تبدیل می‌کند (نتیجه: <code>String</code>).</li>
+                <li><code>fileData = JSON.parse(fileData)</code>: رشته را به آبجکت زنده جاوااسکریپت <code>{ data: [...] }</code> تبدیل می‌کند (نتیجه: <code>Object</code>).</li>
+                <li><code>fileData.data.push(request.data)</code>: کاربر جدید را (که فریم‌ورک در <code>06a-framework</code> خودش پارس کرده و به آبجکت تبدیل کرده!) به انتهای آرایه <code>data</code> اضافه می‌کند. (دقت کنید این تغییر فعلاً <em>فقط در RAM</em> است!).</li>
+                <li><code>let newData = JSON.stringify(fileData)</code> و سپس <code>writeFile('db.json', newData, ...)</code>: کل آبجکت جدید را دوباره به رشته JSON معتبر تبدیل کرده و روی هارد ذخیره می‌کند تا دائمی شود.</li>
+            </ol>
+            <p><strong>چرا در <code>06b-app.js</code> به <code>id</code> نیاز پیدا کردیم؟</strong> در پایگاه داده‌ها به این مفهوم <strong>کلید اصلی (Primary Key)</strong> می‌گویند. ممکن است دو کاربر هر دو اسمشان <code>"ali"</code> باشد؛ اگر بخواهیم اطلاعات یکی از آن‌ها را بخوانیم یا پاک کنیم، از روی اسم نمی‌شود تشخیص داد کدام علی مد نظر است! پس سرور خودش یک <code>id</code> ۸ رقمی تولید می‌کند: تابع <code>getRandomInt(1000000)</code> عددی صحیح بین <code>0</code> تا <code>999999</code> می‌سازد و با جمع شدن با <code>10000000</code>، همیشه یک عدد دقیقاً ۸ رقمی بین <code>10000000</code> تا <code>10999999</code> تولید کرده و روی <code>request.data.id</code> می‌گذارد.</p>
+            <p><em>یک نکته تیزبینانه که در فایل بعدی خودنمایی می‌کند:</em> در <code>06b-app.js</code> مقدار <code>request.data.id</code> از نوع <strong>عدد (Number)</strong> ذخیره شده است. بیایید ببینیم در <code>06c-app.js</code> این موضوع چه چالشی ایجاد می‌کند!</p>
+        </div>
+
+        <!-- 06c-app -->
+        <div class="exercise">
+            <h3>تمرین 06c-app.js <span class="diff-badge">آپدیت: خواندن یک کاربر با ID</span><span class="concept-badge">مفهوم: CRUD (Read) و کد 404</span></h3>
+            <div class="section-title">مسیر جدید getUser در 06c-app.js:</div>
+            <pre><code class="language-javascript">app.get(&#x27;getUser&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    let userId = items[2];
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(200);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+
+            let found = false;
+            for(let x of fileData.data){
+                if(x.id === userId){
+                    found = true;
+                    console.log(&quot;user found.&quot;)
+                    response.writeHead(200);
+                    response.write(JSON.stringify(x));
+                    response.end();
+                }
+            }
+            if(! found){
+                console.log(&quot;user not found.&quot;)
+                response.writeHead(404);
+                response.write(&quot;user not found.&quot;);
+                response.end();
+            }
+        }
+    });
+
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>response.writeHead(404)</code>: کد وضعیت استاندارد HTTP به معنای «منبع مورد نظر پیدا نشد» (Not Found). بر خلاف <code>500</code> که تقصیر سرور است، کدهای سری <code>4xx</code> یعنی درخواست کلاینت مشکلی دارد یا دنبال چیزی می‌گردد که وجود ندارد.</li>
+                    <li><code>for(let x of fileData.data)</code>: حلقه مدرن <code>for...of</code> که در هر دور، یکی از اعضای آرایه (یک آبجکت کاربر) را مستقیم داخل متغیر <code>x</code> می‌ریزد، بدون اینکه نیاز به متغیر شمارنده <code>i</code> داشته باشیم.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>عملیات دوم CRUD یعنی <strong>Read (خواندن یک رکورد خاص)</strong> با مسیر <code>getUser</code> اضافه شد. همچنین یک اصلاح بسیار مهم و ظریف در مسیر <code>signup</code> انجام شده است: خط ساخت شناسه از <code>10000000 + getRandomInt(1000000)</code> به <code>(10000000 + getRandomInt(1000000)).toString()</code> تغییر یافت!</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p><strong>چرا مدرس مجبور شد در <code>06c</code> شناسه را با <code>.toString()</code> به رشته تبدیل کند؟</strong></p>
+            <p>این یکی از رایج‌ترین باگ‌های دنیای جاوااسکریپت است! وقتی کاربر آدرس <code>http://localhost:3000/getUser/10835532</code> را می‌زند، <code>request.url.split("/")</code> آرایه‌ای به شکل <code>["", "getUser", "10835532"]</code> می‌سازد. پس <code>userId = items[2]</code> <strong>همیشه از نوع رشته (String)</strong> است. در شرط جستجو نوشته‌ایم <code>if(x.id === userId)</code>. یادتان هست عملگر سه مساوی (<code>===</code>) هم مقدار و هم <em>نوع داده</em> را چک می‌کند؟ اگر در <code>db.json</code> مقدار <code>x.id</code> از نوع عدد (<code>10835532</code>) می‌بود، مقایسه <code>10835532 === "10835532"</code> برابر <strong><code>false</code></strong> می‌شد و سرور همیشه می‌گفت «کاربر پیدا نشد»! با تبدیل کردن <code>id</code> به رشته هنگام ثبت‌نام، هر دو طرف مقایسه از نوع <code>String</code> شدند و مشکل حل شد.</p>
+            <p><strong>چرا در پاسخ به کاربر دوباره <code>JSON.stringify(x)</code> زدیم؟</strong> چون <code>x</code> یک آبجکت جاوااسکریپت است و دستور <code>response.write()</code> مثل <code>writeFile</code> فقط رشته یا Buffer قبول می‌کند! اگر مستقیماً بنویسید <code>response.write(x)</code>، Node.js خطا می‌دهد و کرش می‌کند. پس قبل از ارسال پاسخ در شبکه، آبجکت کاربر پیدا شده را با <code>JSON.stringify(x)</code> تبدیل به رشته JSON می‌کنیم و می‌فرستیم. اگر حلقه تمام شد و پرچم <code>found</code> همچنان <code>false</code> باقی ماند، یعنی چنین کاربری در دیتابیس نبوده و کد <code>404</code> برمی‌گردانیم.</p>
+        </div>
+
+        <!-- 06d-app & 06e-app -->
+        <div class="exercise">
+            <h3>تمرین 06d-app.js و 06e-app.js <span class="diff-badge">آپدیت: حذف و ویرایش کاربر</span><span class="concept-badge">مفهوم: CRUD (Delete & Update) و splice</span></h3>
+            <div class="section-title">مسیر removeUser در 06d-app.js:</div>
+            <pre><code class="language-javascript">app.get(&#x27;removeUser&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    let userId = items[2];
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(500);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+
+            let found = false;
+            for(let i=0; i&lt;fileData.data.length; i++){
+                if(fileData.data[i].id === userId){
+                   found = true;
+                   fileData.data.splice(i, 1);
+                }
+            }
+
+            if(!found){
+                console.log(&quot;user not found&quot;)
+                response.writeHead(404);
+                response.write(&quot;user not found&quot;);
+                response.end();
+            }
+            else{
+                fileData = JSON.stringify(fileData);
+
+                writeFile(&#x27;db.json&#x27;, fileData, function(error){
+                    if(error){
+                        console.log(&quot;error reading db.json&quot;, error)
+                        response.writeHead(500);
+                        response.write(&quot;error reading db.json&quot;);
+                        response.end();
+                    }
+                    else{
+                        console.log(&quot;removeUser done&quot;)
+                        response.writeHead(200);
+                        response.write(&quot;removeUser done&quot;);
+                        response.end();
+                    }
+                });
+            }
+        }
+    });
+});</code></pre>
+            <div class="section-title">مسیر updateUser در 06e-app.js:</div>
+            <pre><code class="language-javascript">app.get(&#x27;updateUser&#x27;, function(request, response){
+    let userId = request.data.id;
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(500);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+
+            let found = false;
+            for(let i=0; i&lt;fileData.data.length; i++){
+                if(fileData.data[i].id === userId){
+                   found = true;
+                   fileData.data.splice(i, 1, request.data);
+                }
+            }
+
+            if(!found){
+                console.log(&quot;user not found&quot;)
+                response.writeHead(404);
+                response.write(&quot;user not found&quot;);
+                response.end();
+            }
+            else{
+                fileData = JSON.stringify(fileData);
+
+                writeFile(&#x27;db.json&#x27;, fileData, function(error){
+                    if(error){
+                        console.log(&quot;error reading db.json&quot;, error)
+                        response.writeHead(500);
+                        response.write(&quot;error reading db.json&quot;);
+                        response.end();
+                    }
+                    else{
+                        console.log(&quot;removeUser done&quot;)
+                        response.writeHead(200);
+                        response.write(&quot;removeUser done&quot;);
+                        response.end();
+                    }
+                });
+            }
+        }
+    });
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>array.splice(startIndex, deleteCount)</code>: متدی که آرایه اصلی را مستقیماً تغییر می‌دهد (Mutate). وقتی می‌نویسیم <code>fileData.data.splice(i, 1)</code> یعنی «برو به خانه شماره <code>i</code> و دقیقاً <code>1</code> عضو را از آرایه حذف کن» (اعضای بعدی خودکار یک خانه به عقب می‌آیند).</li>
+                    <li><code>array.splice(startIndex, deleteCount, newItem)</code>: اگر آرگومان سوم هم به <code>splice</code> بدهید، پس از حذف <code>1</code> عضو در اندیس <code>i</code>، عضو جدید (<code>request.data</code>) را دقیقاً در همان جای خالی می‌نشاند! این ترفند بسیار تمیزی برای جایگزینی (Update) یک عنصر در آرایه است.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در <code>06d-app.js</code> عملیات <strong>Delete</strong> (حذف کاربر با مسیر <code>removeUser</code>) و در <code>06e-app.js</code> عملیات <strong>Update</strong> (ویرایش کاربر با مسیر <code>updateUser</code>) اضافه شدند. به این ترتیب چرخه کامل چهارگانه <strong>CRUD</strong> کامل شد. همچنین دقت کنید کد خطای خواندن <code>db.json</code> در این دو مسیر از <code>200</code> به کد صحیح <code>500</code> اصلاح شده است.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>به سه تفاوت مهم و هوشمندانه در این دو تمرین دقت کنید:</p>
+            <ol>
+                <li><strong>چرا اینجا به جای <code>for...of</code> دوباره از <code>for(let i=0; ...)</code> استفاده کردیم؟</strong> در <code>getUser</code> فقط می‌خواستیم آبجکت کاربر (<code>x</code>) را بخوانیم و نیازی نداشتیم بدانیم در خانه چندم آرایه نشسته است. اما در <code>removeUser</code> و <code>updateUser</code> می‌خواهیم از <code>splice(i, 1, ...)</code> استفاده کنیم و <code>splice</code> برای کار کردن حتماً به <strong>شماره اندیس (<code>i</code>)</strong> نیاز دارد.</li>
+                <li><strong>تفاوت محل دریافت <code>userId</code> در حذف و ویرایش:</strong> در <code>removeUser</code> کاربر هیچ بدنه‌ای نمی‌فرستد و فقط آیدی را در آدرس URL می‌گذارد (<code>/removeUser/10835532</code> ← <code>items[2]</code>). اما در <code>updateUser</code> کاربر کل اطلاعات جدید خودش را در قالب JSON در بدنه درخواست می‌فرستد، پس آیدی هم درون همان بدنه است (<code>let userId = request.data.id</code>).</li>
+                <li><strong>اهمیت شرط <code>if(!found) ... else { writeFile(...) }</code>:</strong> اولاً به یاد داشته باشید که اجرای <code>splice</code> فقط آرایه را در حافظه موقت RAM تغییر می‌دهد؛ اگر در شاخه <code>else</code> آن را دوباره با <code>JSON.stringify</code> و <code>writeFile</code> روی هارد ننویسیم، هیچ تغییری ذخیره نمی‌شود! ثانیاً اگر کاربری با آن آیدی پیدا نشد (<code>!found</code>)، بلافاصله <code>404</code> برمی‌گردانیم و بیهوده به هارد دیسک فشار نمی‌آوریم که فایل بدون تغییر را دوباره بنویسد. (یک نکته کوچک چشمی در <code>06e-app.js</code>: مدرس کد <code>updateUser</code> را از روی <code>removeUser</code> کپی کرده و یادش رفته متن پیام موفقیت را از <code>"removeUser done"</code> به <code>"updateUser done"</code> عوض کند که در کارکرد منطقی تأثیری ندارد، اما خوب است هنگام خواندن کد متوجهش باشید!).</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ==================== SESSION 7 ==================== -->
+    <div id="s7" class="tab-content">
+        <h2>جلسه هفتم: استاندارد RESTful API، احراز هویت با Headers و ساختار Middleware</h2>
+        <p>اگر تا اینجای کار را با ما آمده باشید، الان یک سرور کامل با قابلیت CRUD دارید! اما دو ایراد بسیار بزرگ و حرفه‌ای هنوز در پروژه جلسه ۶ وجود دارد که هیچ شرکت نرم‌افزاری آن‌ها را قبول نمی‌کند:</p>
+        <ol>
+            <li><strong>آشوب در نام‌گذاری مسیرها و نادیده گرفتن متدهای HTTP:</strong> برای مدیریت یک موجودیت ساده به نام «کاربر»، چهار آدرس متفاوت ساختیم (<code>signup</code>، <code>getUser</code>، <code>removeUser</code>، <code>updateUser</code>) و از همه بدتر، همه آن‌ها را با <code>app.get</code> تعریف کردیم! در استاندارد وب، <code>GET</code> فقط برای خواندن است، نه برای پاک کردن اطلاعات!</li>
+            <li><strong>نبودن هیچ لایه امنیتی:</strong> در پایان جلسه ۶، هر غریبه‌ای که آیدی یک کاربر را بداند می‌تواند بدون هیچ رمز عبوری آن کاربر را از دیتابیس حذف کند!</li>
+        </ol>
+        <p>جلسه هفتم دقیقاً پروژه شما را از یک تمرین دانشجویی به یک معماری استاندارد و امن <strong>RESTful API</strong> ارتقا می‌دهد و پایه یکی از مهم‌ترین مفاهیم دنیای بک‌اند یعنی <strong>Middleware</strong> را می‌گذارد.</p>
+
+        <!-- 07a -->
+        <div class="exercise">
+            <h3>تمرین 07a-framework.js و 07a-app.js <span class="diff-badge">آپدیت: پشتیبانی از متدهای HTTP</span><span class="concept-badge">مفهوم: RESTful API (GET/POST/PUT/DELETE)</span></h3>
+            <div class="section-title">کد کامل 07a-framework.js:</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+
+function framework(){
+    let controllers = [];
+    let app = {
+        get: function(path, func){
+            controllers.push({
+                method: &#x27;GET&#x27;,
+                name: path,
+                func: func
+            })
+        },
+        put: function(path, func){
+            controllers.push({
+                method: &#x27;PUT&#x27;,
+                name: path,
+                func: func
+            })
+        },
+        post: function(path, func){
+            controllers.push({
+                method: &#x27;POST&#x27;,
+                name: path,
+                func: func
+            })
+        },
+        delete: function(path, func){
+            controllers.push({
+                method: &#x27;DELETE&#x27;,
+                name: path,
+                func: func
+            })
+        },
+        listen: function(port, userCallback){
+            function serverCallback(request, response){
+                console.log(&quot;---------------------------------------------&quot;);
+                console.log(&quot;(framework) url: &quot;, request.method, request.url);
+
+                let data = &quot;&quot;;
+                request.on(&quot;data&quot;, function(part){
+                    data = data + part;
+                });
+                request.on(&quot;end&quot;, function(){
+                    console.log(&quot;(framework) data:&quot;, data);
+
+                    try{
+                        request.data = JSON.parse(data);
+                    }
+                    catch(e){
+                        console.log(&quot;(framework) data is not a valid JSON.&quot;);
+                        request.data = data;
+                    }
+                    request.myKey = &#x27;salam!&#x27;;
+
+                    let found = false;
+                    for(let item of controllers){
+                        if(request.url.startsWith(&#x27;/&#x27; + item.name) &amp;&amp; item.method === request.method){
+                            console.log(&quot;(framework) controller: &quot;, item.name);
+                            found = true;
+                            item.func(request, response);
+                            break;
+                        }
+                    }
+                    if(!found){
+                        console.log(&quot;path not found.&quot;);
+                    }
+                });
+            }
+            let server = createServer(serverCallback);
+            server.listen(port, userCallback);
+        }
+    }
+    return app;
+}
+
+export { 
+    framework 
+}</code></pre>
+            <div class="section-title">تغییر مسیرها در 07a-app.js (تبدیل به REST):</div>
+            <pre><code class="language-javascript">//app.get(&#x27;signup&#x27;, function(request, response)
+app.post(&#x27;user&#x27;, function(request, response){
+    ...
+});
+
+//app.get(&#x27;getUser&#x27;, function(request, response)
+app.get(&#x27;user&#x27;, function(request, response){
+    ...
+});
+
+//app.get(&#x27;removeUser&#x27;, function(request, response)
+app.delete(&#x27;user&#x27;, function(request, response){
+    ...
+});
+
+//app.get(&#x27;editUser&#x27;, function(request, response)
+app.put(&#x27;user&#x27;, function(request, response){
+    ...
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>request.method</code>: ویژگی داخلی شیء <code>request</code> در ماژول <code>http</code> که نوع فعل HTTP ارسال‌شده توسط کلاینت را با حروف بزرگ برمی‌گرداند (مثلاً <code>'GET'</code>، <code>'POST'</code>، <code>'PUT'</code> یا <code>'DELETE'</code>).</li>
+                    <li><code>app.post()</code>، <code>app.put()</code> و <code>app.delete()</code>: سه متد جدید در فریم‌ورک ما که دقیقاً مثل <code>app.get()</code> عمل می‌کنند، با این تفاوت که هنگام ثبت کنترلر در آرایه <code>controllers</code>، ویژگی <code>method</code> را متناسب با نام خودشان ذخیره می‌کنند.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در <code>07a-framework.js</code> هر آبجکت داخل آرایه <code>controllers</code> حالا به جای ۲ ویژگی، ۳ ویژگی دارد: <code>method</code>، <code>name</code> و <code>func</code>. شرط مسیریابی نیز به <code>if(request.url.startsWith('/' + item.name) && item.method === request.method)</code> ارتقا یافته است. در <code>07a-app.js</code> هم هر چهار مسیر کاربری زیر یک نام واحد یعنی <code>'user'</code> جمع شده‌اند.</p>
+            <div class="section-title">توضیح گام به گام و عمیق (فلسفه معماری REST):</div>
+            <p>بیایید فلسفه <strong>RESTful API</strong> را خیلی ساده و ریشه‌ای بفهمیم. تصور کنید یک سایت فروشگاهی بزرگ دارید که ۵۰ بخش مختلف دارد: کاربر، محصول، سفارش، فاکتور، نظر، تخفیف و... . اگر بخواهیم به سبک جلسه ۶ پیش برویم، باید ۲۰۰ آدرس فعلی مختلف اختراع کنیم (<code>addProduct</code>، <code>removeProduct</code>، <code>editOrder</code>، <code>getInvoice</code> و...) و هر برنامه‌نویسی سلیقه‌ای اسم می‌گذارد (یکی می‌نویسد <code>deleteUser</code>، یکی می‌نویسد <code>removeUser</code>!).</p>
+            <p>معماری <strong>REST</strong> یک قانون ساده و جهانی آورد: <strong>آدرس URL فقط باید «اسم موجودیت» (Resource) باشد (مثل <code>/user</code>)، و «نوع عملیات» را خودِ پروتکل HTTP با متدش مشخص کند!</strong></p>
+            <ul>
+                <li><code>POST /user</code> ← یعنی یک منبع جدید از جنس <code>user</code> بساز (Create / معادل <code>signup</code>).</li>
+                <li><code>GET /user/10835532</code> ← یعنی منبع <code>user</code> با این آیدی را بخوان و بده (Read / معادل <code>getUser</code>).</li>
+                <li><code>PUT /user</code> ← یعنی منبع <code>user</code> را با داده‌های جدید جایگزین و ویرایش کن (Update / معادل <code>editUser</code>).</li>
+                <li><code>DELETE /user/10835532</code> ← یعنی منبع <code>user</code> با این آیدی را حذف کن (Delete / معادل <code>removeUser</code>).</li>
+            </ul>
+            <p><strong>نکته کلیدی در موتور فریم‌ورک:</strong> حالا هم مسیر گرفتن کاربر و هم مسیر حذف کاربر هر دو آدرسشان با <code>'/user'</code> شروع می‌شود! اگر در <code>07a-framework.js</code> شرط <code>&& item.method === request.method</code> را نمی‌گذاشتیم، اولین کنترلر <code>'user'</code> همیشه اجرا می‌شد. اما حالا فریم‌ورک مثل یک تقاطع هوشمند هم به <em>آدرس</em> نگاه می‌کند و هم به <em>متد HTTP</em> تا دقیقاً کنترلر درست را صدا بزند.</p>
+        </div>
+
+        <!-- 07b -->
+        <div class="exercise">
+            <h3>تمرین 07b-app.js <span class="diff-badge">آپدیت: افزودن لایه امنیت اولیه</span><span class="concept-badge">مفهوم: request.headers و کد 403</span></h3>
+            <div class="section-title">تغییر در مسیر DELETE /user در 07b-app.js:</div>
+            <pre><code class="language-javascript">//app.get(&#x27;removeUser&#x27;, function(request, response)
+app.delete(&#x27;user&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    let userId = items[2];
+    let user = request.headers.user;
+    let pass = request.headers.pass;
+
+    if(user !== &#x27;admin&#x27; || pass !== &#x27;123&#x27;){
+        console.log(&quot;invalid user and/or pass.&quot;, user, pass);
+        response.writeHead(403);
+        response.write(&quot;invalid user and/or pass.&quot;);
+        response.end();
+        return;
+    }
+
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(500);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+
+            let found = false;
+            for(let i=0; i&lt;fileData.data.length; i++){
+                if(fileData.data[i].id === userId){
+                   found = true;
+                   fileData.data.splice(i, 1);
+                }
+            }
+
+            if(!found){
+                console.log(&quot;user not found&quot;)
+                response.writeHead(404);
+                response.write(&quot;user not found&quot;);
+                response.end();
+            }
+            else{
+                fileData = JSON.stringify(fileData);
+
+                writeFile(&#x27;db.json&#x27;, fileData, function(error){
+                    if(error){
+                        console.log(&quot;error reading db.json&quot;, error)
+                        response.writeHead(500);
+                        response.write(&quot;error reading db.json&quot;);
+                        response.end();
+                    }
+                    else{
+                        console.log(&quot;removeUser done&quot;)
+                        response.writeHead(200);
+                        response.write(&quot;removeUser done&quot;);
+                        response.end();
+                    }
+                });
+            }
+        }
+    });
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>request.headers</code>: یک آبجکت جاوااسکریپتی که تمام سربرگ‌های (HTTP Headers) ارسال‌شده توسط کلاینت را به صورت کلید-مقدار نگه می‌دارد. <strong>نکته مهم Node.js:</strong> نود به صورت خودکار نام تمام هدرها را به حروف کوچک (lowercase) تبدیل می‌کند؛ پس حتی اگر کلاینت هدر <code>User</code> بفرستد، در سرور آن را با <code>request.headers.user</code> می‌خوانیم.</li>
+                    <li><code>response.writeHead(403)</code>: کد وضعیت استاندارد HTTP به معنای «ممنوع / عدم دسترسی» (Forbidden). به کلاینت می‌گوید سرور درخواست تو را فهمید، اما اجازه انجام این کار را به تو نمی‌دهد.</li>
+                    <li><code>return;</code>: اجرای تابع کنترلر را دقیقاً در همان خط متوقف کرده و از آن خارج می‌شود.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در ابتدای کنترلر <code>app.delete('user', ...)</code> یک شرط محافظ (Guard Clause) اضافه شده است که نام کاربری و رمز عبور فرستنده درخواست را از <code>request.headers</code> می‌خواند و فقط به <code>admin</code> با رمز <code>123</code> اجازه حذف می‌دهد.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>سه سوال مهم که هر دانشجوی نرم‌افزار باید اینجا از خودش بپرسد:</p>
+            <ol>
+                <li><strong>چرا نام کاربری و رمز عبور را در <code>headers</code> فرستادیم، نه در URL و نه در Body؟</strong>
+                    چون اولاً قرار دادن رمز عبور در URL (مثل <code>/user/10835532/admin/123</code>) فاجعه امنیتی است و در تمام لاگ‌ها و مرورگرها لو می‌رود. ثانیاً در درخواست <code>DELETE</code> معمولاً اصلاً Body نداریم و اطلاعاتی که مربوط به «هویت درخواست‌دهنده» است (نه خود داده هدف) طبق استاندارد وب در بخش متادیتا یعنی <strong>Headers</strong> ارسال می‌شود.</li>
+                <li><strong>چرا کلمه <code>return;</code> بعد از <code>response.end()</code> حیاتی است؟</strong>
+                    بسیاری از مبتدی‌ها فکر می‌کنند <code>response.end()</code> اجرای تابع جاوااسکریپت را هم متوقف می‌کند! <strong>این تصور کاملاً غلط است.</strong> دستور <code>response.end()</code> فقط اتصال شبکه با کلاینت را می‌بندد، اما موتور جاوااسکریپت بی‌تفاوت می‌رود سراغ خط بعدی (یعنی <code>readFile('db.json', ...)</code>)! اگر <code>return;</code> نگذارید، دو فاجعه هم‌زمان رخ می‌دهد: هم کاربر نامجاز موفق به پاک کردن اطلاعات از <code>db.json</code> می‌شود، و هم وقتی کد پایین دوباره بخواهد <code>response.writeHead(200)</code> بزند، سرور چون قبلاً پاسخ را بسته بود کرش می‌کند!</li>
+                <li><strong>مشکل این نسخه چیست؟</strong> در اینجا <code>'admin'</code> و <code>'123'</code> به صورت ثابت درون کد نوشته شده‌اند (اصطلاحاً <strong>Hardcoded</strong>). در سیستم‌های واقعی، رمزها و لیست ادمین‌ها باید در دیتابیس باشند تا بتوان ادمین جدید اضافه کرد یا رمزها را عوض کرد. دقیقاً به همین دلیل سراغ <code>07c</code> می‌رویم.</li>
+            </ol>
+        </div>
+
+        <!-- 07c -->
+        <div class="exercise">
+            <h3>تمرین 07c-app.js و db.json <span class="diff-badge">آپدیت: احراز هویت داینامیک از دیتابیس</span><span class="concept-badge">مفهوم: Authentication & Authorization</span></h3>
+            <div class="section-title">ساختار جدید 07/db.json (اضافه شدن pass و type):</div>
+            <pre><code class="language-json">{
+    &quot;data&quot;: [
+        {
+            &quot;name&quot;: &quot;xxxxxxxxxxx&quot;,
+            &quot;email&quot;: &quot;nasser@x.com&quot;,
+            &quot;pass&quot;: &quot;456&quot;,
+            &quot;id&quot;: &quot;10835532&quot;,
+            &quot;type&quot;: &quot;user&quot;
+        },
+        {
+            &quot;name&quot;: &quot;ali&quot;,
+            &quot;email&quot;: &quot;ali@x.com&quot;,
+            &quot;pass&quot;: &quot;123&quot;,
+            &quot;id&quot;: &quot;10988295&quot;,
+            &quot;type&quot;: &quot;admin&quot;
+        }
+    ]
+}</code></pre>
+            <div class="section-title">مسیر DELETE /user در 07c-app.js:</div>
+            <pre><code class="language-javascript">//app.get(&#x27;removeUser&#x27;, function(request, response)
+app.delete(&#x27;user&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    let userId = items[2];
+    let user = request.headers.user;
+    let pass = request.headers.pass;
+
+    // فاز احراز هویت کاربر
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(500);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+            let found = false;
+            for(let x of fileData.data){
+                if( x.name === user &amp;&amp;
+                    x.pass === pass &amp;&amp;
+                    x.type === &#x27;admin&#x27;
+                ){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                console.log(&quot;invalid user and/or pass&quot;, user, pass);
+                response.writeHead(403);
+                response.write(&quot;invalid user and/or pass&quot;);
+                response.end();
+            }
+            else{
+                //فاز انجام کار
+                readFile(&#x27;db.json&#x27;, function(error, fileData){
+                    if(error){
+                        console.log(&quot;error reading db.json&quot;, error)
+                        response.writeHead(500);
+                        response.write(&quot;error reading db.json&quot;);
+                        response.end();
+                    }
+                    else{
+                        fileData = fileData.toString();
+                        fileData = JSON.parse(fileData);
+
+                        let found = false;
+                        for(let i=0; i&lt;fileData.data.length; i++){
+                            if(fileData.data[i].id === userId){
+                            found = true;
+                            fileData.data.splice(i, 1);
+                            }
+                        }
+
+                        if(!found){
+                            console.log(&quot;user not found&quot;)
+                            response.writeHead(404);
+                            response.write(&quot;user not found&quot;);
+                            response.end();
+                        }
+                        else{
+                            fileData = JSON.stringify(fileData);
+
+                            writeFile(&#x27;db.json&#x27;, fileData, function(error){
+                                if(error){
+                                    console.log(&quot;error reading db.json&quot;, error)
+                                    response.writeHead(500);
+                                    response.write(&quot;error reading db.json&quot;);
+                                    response.end();
+                                }
+                                else{
+                                    console.log(&quot;removeUser done&quot;)
+                                    response.writeHead(200);
+                                    response.write(&quot;removeUser done&quot;);
+                                    response.end();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });    
+});</code></pre>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>در فایل <code>db.json</code> دو فیلد جدید <code>pass</code> (رمز عبور) و <code>type</code> (نقش کاربر: <code>"admin"</code> یا <code>"user"</code>) به رکورد کاربران اضافه شده است. در <code>07c-app.js</code> بررسی ثابت <code>admin/123</code> حذف شده و کل کنترلر <code>app.delete('user')</code> به دو بخش کاملاً مجزا تقسیم شده است: <strong>فاز احراز هویت کاربر</strong> و <strong>فاز انجام کار</strong>.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>در شرط داخل حلقه فاز اول، یکی از کلیدی‌ترین مفاهیم امنیت نرم‌افزار پیاده‌سازی شده است؛ به سه شرط داخل <code>if</code> دقت کنید:</p>
+            <ul>
+                <li><strong>احراز هویت (Authentication — «تو کی هستی؟»):</strong> دو شرط <code>x.name === user && x.pass === pass</code> بررسی می‌کنند که آیا شخصی که درخواست داده واقعاً همان کاربری است که ادعا می‌کند و رمز عبور صحیح را دارد یا نه.</li>
+                <li><strong>سطح دسترسی / مجوزدهی (Authorization — «اجازه چه کاری داری؟»):</strong> شرط سوم یعنی <code>x.type === 'admin'</code> چک می‌کند که آیا این کاربرِ شناسایی‌شده <em>نقش ادمین</em> دارد یا نه! برای مثال، به <code>07/db.json</code> نگاه کنید: کاربر اول (<code>nasser</code> با رمز <code>456</code>) اگر نام و رمز درستش را بفرستد، هویتش واقعی است اما چون <code>type</code> او <code>"user"</code> است، شرط سوم رد می‌شود و کد <code>403</code> می‌گیرد. فقط <code>ali</code> که <code>type: "admin"</code> دارد اجازه ورود به فاز انجام کار را پیدا می‌کند.</li>
+            </ul>
+            <p><strong>تحلیل معماری (چرا کد <code>07c-app.js</code> هنوز خوب نیست؟):</strong> حالا یک قدم عقب بایستید و به ظاهر کد <code>app.delete('user')</code> در <code>07c-app.js</code> نگاه کنید! دو مشکل جدی می‌بینید:</p>
+            <ol>
+                <li><strong>جهنم کالبک‌ها (Callback Hell / Pyramid of Doom):</strong> یک <code>readFile</code> برای احراز هویت نوشته‌ایم، داخل کالبکش یک <code>readFile</code> دیگر برای پیدا کردن کاربر هدف نوشته‌ایم، و داخل کالبک دومی یک <code>writeFile</code> برای ذخیره نوشته‌ایم! کد مدام به سمت راست تورفته و خواندن و پیدا کردن آکولادها عذاب‌آور شده است.</li>
+                <li><strong>عدم قابلیت استفاده مجدد (تکرار کد):</strong> اگر فردا بخواهیم روی مسیر <code>PUT /user</code> یا <code>deleteFile</code> هم شرط ادمین بودن بگذاریم، آیا باید این ۳۰ خط کد احراز هویت را در همه‌جا کپی-پیست کنیم؟ قطعاً نه! اگر ساختار دیتابیس عوض شود، باید ۱۰ جا را ویرایش کنیم. راه‌حل حرفه‌ای در آخرین تمرین جلسه ۷ (<code>07d-app.js</code>) ارائه می‌شود.</li>
+            </ol>
+        </div>
+
+        <!-- 07d -->
+        <div class="exercise">
+            <h3>تمرین 07d-app.js <span class="diff-badge">آپدیت: استخراج تابع checkUser و الگوی next()</span><span class="concept-badge">مفهوم: Error-First Callback و پیش‌زمینه Middleware</span></h3>
+            <div class="section-title">تابع مستقل checkUser در بالای فایل 07d-app.js:</div>
+            <pre><code class="language-javascript">function checkUser(request, callback){
+    let user = request.headers.user;
+    let pass = request.headers.pass;
+    readFile(&#x27;db.json&#x27;, function(error, fileData){
+        if(error){
+            console.log(&quot;checkUser: error reading db.json&quot;, error)
+            callback(error, null)
+        }
+        else{
+            fileData = fileData.toString();
+            fileData = JSON.parse(fileData);
+            let found = false;
+            for(let x of fileData.data){
+                if( x.name === user &amp;&amp;
+                    x.pass === pass &amp;&amp;
+                    x.type === &#x27;admin&#x27;
+                ){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                callback(null, false);
+            }
+            else{
+                callback(null, true);
+            }
+        }
+    });
+}</code></pre>
+            <div class="section-title">مسیر تمیزشده DELETE /user در 07d-app.js:</div>
+            <pre><code class="language-javascript">//app.get(&#x27;removeUser&#x27;, function(request, response)
+app.delete(&#x27;user&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    let userId = items[2];
+    
+    // فاز احراز هویت کاربر
+    checkUser(request, function(error, result){
+        if(error){
+            console.log(&quot;error reading db.json&quot;, error)
+            response.writeHead(500);
+            response.write(&quot;error reading db.json&quot;);
+            response.end();
+        }
+        else{
+            if(result === false){
+                console.log(&quot;invalid user and/or pass&quot;);
+                response.writeHead(403);
+                response.write(&quot;invalid user and/or pass&quot;);
+                response.end();
+            }
+            else{
+                //فاز انجام کار
+                console.log(&quot;inside «app.delete(&#x27;user&#x27;, ...» : admin found&quot;)
+                next();
+            }
+        }
+    });
+
+    function next(){
+        readFile(&#x27;db.json&#x27;, function(error, fileData){
+            if(error){
+                console.log(&quot;error reading db.json&quot;, error)
+                response.writeHead(500);
+                response.write(&quot;error reading db.json&quot;);
+                response.end();
+            }
+            else{
+                fileData = fileData.toString();
+                fileData = JSON.parse(fileData);
+
+                let found = false;
+                for(let i=0; i&lt;fileData.data.length; i++){
+                    if(fileData.data[i].id === userId){
+                    found = true;
+                    fileData.data.splice(i, 1);
+                    }
+                }
+
+                if(!found){
+                    console.log(&quot;user not found&quot;)
+                    response.writeHead(404);
+                    response.write(&quot;user not found&quot;);
+                    response.end();
+                }
+                else{
+                    fileData = JSON.stringify(fileData);
+
+                    writeFile(&#x27;db.json&#x27;, fileData, function(error){
+                        if(error){
+                            console.log(&quot;error reading db.json&quot;, error)
+                            response.writeHead(500);
+                            response.write(&quot;error reading db.json&quot;);
+                            response.end();
+                        }
+                        else{
+                            console.log(&quot;removeUser done&quot;)
+                            response.writeHead(200);
+                            response.write(&quot;removeUser done&quot;);
+                            response.end();
+                        }
+                    });
+                }
+            }
+        });
+    }
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات و الگوهای جدید این بخش:</h4>
+                <ul>
+                    <li><code>function checkUser(request, callback)</code>: ساختن اولین <strong>تابع ناهمگام سفارشی</strong> خودمان! تا الان ما فقط از توابع ناهمگام آماده Node.js (مثل <code>readFile</code>) استفاده می‌کردیم و به آن‌ها کالبک می‌دادیم؛ اما اینجا خودمان تابعی ساخته‌ایم که ورودی دومش یک <code>callback</code> است.</li>
+                    <li><code>callback(error, result)</code>: الگوی استاندارد <strong>Error-First Callback</strong> در کل اکوسیستم Node.js. قانون این قرارداد این است: پارامتر اول همیشه برای خطای سیستمی است (اگر خطایی نبود، <code>null</code> می‌فرستیم) و پارامتر دوم نتیجه منطقی عملیات است (اینجا <code>true</code> یا <code>false</code>).</li>
+                    <li><code>function next()</code>: جدا کردن بدنه «فاز انجام کار» به عنوان یک تابع مستقل درون کنترلر که فقط زمانی صدا زده می‌شود که نگهبان (<code>checkUser</code>) مجوز عبور داده باشد.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>تمام منطق فاز احراز هویت از داخل <code>app.delete('user')</code> بیرون کشیده شده و تبدیل به یک تابع مستقل و قابل استفاده مجدد به نام <code>checkUser</code> در بالای فایل شده است. همچنین منطق حذف کاربر درون تابع <code>next()</code> قرار گرفته تا ساختار کنترلر کاملاً تخت، تمیز و خوانا شود.</p>
+            <div class="section-title">توضیح گام به گام و عمیق (نقطه اوج یادگیری Node.js در این ۷ جلسه):</div>
+            <p>اگر این تمرین را عمیقاً بفهمید، یعنی قلب Node.js را درک کرده‌اید! بیایید سه پرسش بنیادین را کاملاً باز کنیم:</p>
+            <ol>
+                <li><strong>چرا در تابع <code>checkUser</code> ننوشتیم <code>return true;</code> یا <code>return false;</code>؟</strong>
+                    این مهم‌ترین سوال است! یادتان باشد داخل <code>checkUser</code> دستور ناهمگام <code>readFile('db.json', ...)</code> صدا زده می‌شود. اگر می‌نوشتید <code>let isAdmin = checkUser(request);</code>، تابع <code>checkUser</code> کار خواندن فایل را به سیستم‌عامل می‌سپرد و <em>بلافاصله</em> قبل از اینکه اصلاً فایل خوانده شود تمام می‌شد و <code>undefined</code> برمی‌گرداند! به همین دلیل، وقتی داخل تابعی یک عملیات ناهمگام دارید، <strong>نمی‌توانید نتیجه را با <code>return</code> برگردانید</strong>؛ بلکه باید از صداکننده یک تابع <code>callback</code> بگیرید و بگویید: «شماره‌ات (تابعت) را به من بده، هر وقت خواندن فایل تمام شد بهت زنگ می‌زنم (کالبکت را صدا می‌زنم) و جواب را می‌گویم!»</li>
+                <li><strong>تحلیل سه حالت خروجی در <code>checkUser</code> (قرارداد Error-First):</strong>
+                    <ul>
+                        <li><strong>حالت ۱ — خطای سیستمی (فایل <code>db.json</code> خوانده نشد):</strong> صدا می‌زند <code>callback(error, null)</code>. کنترلر متوجه می‌شود <code>error</code> پر است، پس می‌فهمد مشکل از سرور است و کد <code>500</code> برمی‌گرداند.</li>
+                        <li><strong>حالت ۲ — کاربر ادمین نبود یا رمز اشتباه بود:</strong> هیچ خطای سیستمی در خواندن هارد رخ نداده! پس آرگومان اول <code>null</code> است و آرگومان دوم <code>false</code>: <code>callback(null, false)</code>. کنترلر می‌بیند <code>error</code> نیست ولی <code>result === false</code> است، پس کد <code>403</code> برمی‌گرداند.</li>
+                        <li><strong>حالت ۳ — کاربر ادمین معتبر است:</strong> صدا می‌زند <code>callback(null, true)</code>. کنترلر می‌فهمد همه‌چیز امن است و <code>next()</code> را صدا می‌زند.</li>
+                    </ul>
+                    این تفکیک دقیق بین «خطای سیستمی (500)» و «رد منطقی دسترسی (403)» یک مهارت کاملاً حرفه‌ای است.</li>
+                <li><strong>چطور <code>next()</code> هم بالاتر از تعریفش صدا زده شده و هم به <code>userId</code> و <code>response</code> دسترسی دارد؟</strong>
+                    دو ویژگی عمیق جاوااسکریپت اینجا کار می‌کنند:
+                    <ul>
+                        <li><strong>Hoisting (بالاکشی توابع):</strong> در جاوااسکریپت، توابعی که با <code>function next(){...}</code> تعریف می‌شوند، در زمان خواندن کد به بالای اسکوپ خود کشیده می‌شوند؛ به همین دلیل می‌توانید در خط بالاتر <code>next();</code> را صدا بزنید و بدنه <code>function next()</code> را پایین‌تر بنویسید تا کد خیلی تمیزتر خوانده شود.</li>
+                        <li><strong>Closure (بستار):</strong> چون <code>next</code> داخل تابع <code>app.delete('user', function(request, response){...})</code> تعریف شده است، تمام متغیرهای تابع بیرونی یعنی <code>userId</code>، <code>request</code> و <code>response</code> را به یاد دارد و بدون نیاز به پاس دادن پارامتر به آن‌ها دسترسی دارد.</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>پل ارتباطی با آینده (Middleware در Express.js):</strong> به نام تابعی که مدرس انتخاب کرده دقت کنید: <code>next()</code>! این اسم اتفاقی نیست. در فریم‌ورک‌های حرفه‌ای مثل Express.js، وقتی درخواستی می‌آید، ابتدا از یک یا چند «ایست بازرسی» عبور می‌کند که به آن‌ها <strong>میان‌افزار (Middleware)</strong> می‌گویند (مثل احراز هویت، لاگ‌گیری، بررسی دسترسی). اگر ایست بازرسی درخواست را تأیید کرد، تابع <code>next()</code> را صدا می‌زند تا درخواست به مرحله بعدی (منطق اصلی کنترلر) منتقل شود؛ و اگر رد کرد، همان‌جا پاسخ <code>403</code> می‌دهد و جلوی ادامه را می‌گیرد. شما در <code>07d-app.js</code> دقیقاً هسته فکری Middleware را با دست‌های خودتان ساخته‌اید!</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        function openTab(evt, tabName) {
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            let tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>

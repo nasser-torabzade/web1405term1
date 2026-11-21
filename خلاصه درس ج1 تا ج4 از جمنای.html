@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>آموزش گام به گام Node.js (با سینتکس هایلایت و دستورات جدید)</title>
+    <!-- PrismJS Theme (Tomorrow Night) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; padding: 20px; background-color: #f8fafc; color: #1e293b; font-size: 16px; margin: 0; }
+        h1 { text-align: center; color: #0f172a; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 1.1em; }
+        .tabs { display: flex; flex-wrap: wrap; border-bottom: 3px solid #3b82f6; margin-bottom: 20px; }
+        .tab-btn { background-color: #e2e8f0; border: none; padding: 12px 20px; margin-left: 5px; margin-bottom: 5px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 16px; font-weight: bold; color: #475569; transition: 0.2s; }
+        .tab-btn:hover { background-color: #cbd5e1; }
+        .tab-btn.active { background-color: #3b82f6; color: white; }
+        .tab-content { display: none; background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: none; }
+        .tab-content.active { display: block; }
+        .exercise { border: 1px solid #e2e8f0; border-right: 6px solid #10b981; border-radius: 8px; padding: 20px; margin-bottom: 35px; background-color: #fcfcfc; }
+        .exercise h3 { margin-top: 0; color: #047857; display: flex; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; font-size: 1.3em; }
+        .concept-badge { background-color: #3b82f6; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; margin-right: 15px; font-weight: normal; line-height: 1; }
+        .diff-badge { background-color: #f59e0b; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; margin-right: 10px; font-weight: normal; line-height: 1; }
+        pre[class*="language-"] { border-radius: 8px; border-left: 4px solid #3b82f6; direction: ltr; font-size: 15px; text-align: left; margin: 15px 0; }
+        .section-title { color: #1e293b; font-weight: bold; margin-top: 25px; margin-bottom: 5px; border-right: 3px solid #3b82f6; padding-right: 10px; font-size: 1.1em; }
+        .commands-box { background-color: #fdfce8; border: 1px dashed #ca8a04; border-radius: 6px; padding: 15px; margin-top: 15px; }
+        .commands-box h4 { margin: 0 0 10px 0; color: #854d0e; font-size: 1em; }
+        .commands-box ul { margin: 0; padding-right: 20px; }
+        .commands-box li { margin-bottom: 5px; color: #422006; }
+        p { text-align: justify; margin: 10px 0; }
+        code:not([class*="language-"]) { background-color: #f1f5f9; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #b91c1c; direction: ltr; display: inline-block; }
+        ul { padding-right: 20px; }
+    </style>
+</head>
+<body>
+    <h1>آموزش گام به گام Node.js</h1>
+    <div class="subtitle">تولید شده توسط gemini بر مبنای جلسات 1 تا 4 از تدریس ناصر تراب‌زاده در دانشگاه منتظری - مهر 1405</div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 's1')">جلسه ۱: ورودی‌ها و منطق پایه</button>
+        <button class="tab-btn" onclick="openTab(event, 's2')">جلسه ۲: آرایه‌ها، Router و ماژول‌ها</button>
+        <button class="tab-btn" onclick="openTab(event, 's3')">جلسه ۳: سرور HTTP و رفتار Async</button>
+        <button class="tab-btn" onclick="openTab(event, 's4')">جلسه ۴: ساخت فریم‌ورک اختصاصی</button>
+    </div>
+
+    <!-- SESSION 1 -->
+    <div id="s1" class="tab-content active">
+        <h2>جلسه اول: ورود به دنیای سرور و خط فرمان</h2>
+        <p>در این جلسه یاد می‌گیریم چگونه کدهای جاوااسکریپت را مستقیماً روی سیستم‌عامل (بدون مرورگر) اجرا کنیم و مقادیر داینامیک را به عنوان ورودی به آن‌ها بدهیم.</p>
+        
+        <div class="exercise">
+            <h3>تمرین 01a.js <span class="concept-badge">مفهوم: process.argv</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">let x = process.argv;
+console.log(&quot;input is:&quot;, x);</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>process.argv</code>: یک آرایه از تمام کلماتی است که هنگام اجرای فایل نود در خط فرمان وارد می‌کنیم.</li>
+                    <li><code>console.log()</code>: برای چاپ کردن خروجی و متغیرها در ترمینال یا کنسول استفاده می‌شود.</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>در دنیای Node.js ما شیءای جادویی و سراسری به نام <code>process</code> داریم که نمایانگر پروسه در حال اجرای این برنامه در سیستم‌عامل است. متغیر <code>argv</code> (مخفف argument vector) آرایه‌ای است از تمام کلماتی که هنگام اجرای برنامه در ترمینال تایپ کرده‌اید.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 01b.js <span class="diff-badge">آپدیت: پردازش ورودی‌ها</span><span class="concept-badge">مفهوم: Type Casting</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">console.log(
+    &quot;sum is:&quot;, 
+    Number(process.argv[2]) + 
+    Number(process.argv[3])
+);</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>Number()</code>: یک تابع داخلی جاوااسکریپت است که ورودی متنی (مثل "5") را به عدد واقعی (5) تبدیل می‌کند تا بتوانیم روی آن عملیات ریاضی انجام دهیم.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>به جای چاپ کردن کل آرایه، مستقیماً به خانه‌های سوم و چهارم آرایه (ایندکس‌های 2 و 3) دسترسی پیدا کرده‌ایم و آن‌ها را با هم جمع می‌کنیم.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p><strong>هر چیزی که از ترمینال وارد می‌شود، متنی (String) است</strong>. برای همین مدرس از تابع <code>Number()</code> استفاده کرده تا قبل از جمع کردن، ماهیت این ورودی‌ها را به اعداد تغییر دهد وگرنه جاوااسکریپت دو متن را به هم می‌چسباند (مثلا "5" + "10" می‌شود "510").</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 01c.js <span class="diff-badge">آپدیت: تفکیک فرمان‌ها</span><span class="concept-badge">مفهوم: slice و if/else</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">let command = process.argv[2];
+let input = process.argv.slice(3);
+
+console.log(&quot;------------------------&quot;);
+console.log(&quot;command is:&quot;, command);
+console.log(&quot;inputs are:&quot;, input);
+
+if(command === &quot;sum&quot;){
+    console.log(&quot;sum is:&quot;, Number(input[0]) + Number(input[1]))
+    sum(input[0], input[1]);
+}
+else if(command === &quot;minus&quot;){
+    console.log(&quot;sum is:&quot;, Number(input[0]) - Number(input[1]))
+    minus(input[0], input[1]);
+}
+else {
+    console.log(&quot;command not found.&quot;)
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>.slice()</code>: روی آرایه‌ها اعمال می‌شود و بخشی از آن را بُرش می‌دهد و یک آرایه جدید می‌سازد. مثلا <code>slice(3)</code> از ایندکس ۳ تا انتهای آرایه را جدا می‌کند.</li>
+                    <li><code>if / else if / else</code>: ساختار تصمیم‌گیری برنامه است که مشخص می‌کند کدام بلوک کد اجرا شود.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>ورودی‌ها حالا ساختارمند شده‌اند. خانه دوم آرایه به عنوان "دستور" و مابقی خانه‌ها به عنوان "داده‌ها" جدا شده‌اند و منطق تصمیم‌گیری اضافه شده است.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>کد به یک ماشین حساب خط فرمانی تبدیل شده است. دستور <code>process.argv.slice(3)</code> به این معنی است که "از خانه سوم به بعد را ببُر". اگر کاربر بنویسد <code>node 01c.js sum 50 20</code>، کلمه <code>sum</code> داخل متغیر <code>command</code> می‌رود و <code>[50, 20]</code> داخل <code>input</code> می‌ریزد.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 01d.js <span class="diff-badge">آپدیت: تعریف توابع (Functions)</span><span class="concept-badge">مفهوم: Encapsulation</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">let command = process.argv[2];
+let input = process.argv.slice(3);
+
+console.log(&quot;------------------------&quot;);
+console.log(&quot;command is:&quot;, command);
+console.log(&quot;inputs are:&quot;, input);
+
+function sum(a, b){
+    console.log(&quot;sum is:&quot;, Number(a) + Number(b))
+}
+function minus(a, b){
+    console.log(&quot;result is:&quot;, Number(a) - Number(b))
+}
+
+if(command === &quot;sum&quot;){
+    sum(input[0], input[1]);
+}
+else if(command === &quot;minus&quot;){
+    minus(input[0], input[1]);
+}
+else {
+    console.log(&quot;command not found.&quot;)
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>function name(args) {}</code>: برای تعریف یک بسته کد قابل استفاده مجدد کاربرد دارد. باعث می‌شود کد را یک بار بنویسیم و بارها استفاده کنیم.</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی نسبت به قبل تغییر کرد؟</div>
+            <p>کدهای مربوط به عملیات جمع و تفریق از داخل شرط‌های <code>if</code> کنده شده و داخل دو تابع مجزا (<code>sum</code> و <code>minus</code>) کپسوله شده‌اند.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>این گام، اولین قدم برای "کدنویسی تمیز" است. شرط‌های ما (بلاک‌های if) نباید درگیر چگونگی محاسبه شوند و فقط باید جریان برنامه را هدایت کنند. با این کار، اگر بخواهیم فرمول جمع را تغییر دهیم، مستقیماً سراغ بدنه تابع می‌رویم.</p>
+        </div>
+    </div>
+
+    <!-- SESSION 2 -->
+    <div id="s2" class="tab-content">
+        <h2>جلسه دوم: خداحافظی با if/else، سلام به Router و Moduleها</h2>
+        <p>استفاده از ده‌ها شرط if/else برنامه را شلوغ می‌کند. این جلسه معماری برنامه‌نویسی شما را متحول می‌کند.</p>
+        
+        <div class="exercise">
+            <h3>تمرین 02b.js <span class="diff-badge">آپدیت: حذف کامل شرط‌ها</span><span class="concept-badge">مفهوم: الگوی Array of Objects و Routing</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">let command = process.argv[2];
+let input = process.argv.slice(3);
+
+console.log(&quot;------------------------&quot;);
+console.log(&quot;command is:&quot;, command);
+console.log(&quot;inputs are:&quot;, input);
+
+//---------------------------------------------------------------------------------------
+
+let controllers = [
+    {
+        name: &quot;sum&quot;,
+        func: function (input) {
+            console.log(&quot;sum is:&quot;, Number(input[0]) + Number(input[1]))
+        }
+    },
+    {
+        name: &quot;minus&quot;,
+        func: function (input) {
+            console.log(&quot;result is:&quot;, Number(input[0]) - Number(input[1]))
+        }
+    },
+    {
+        name: &quot;print&quot;,
+        func: function (input) {
+            let x = {
+                name: input[0],
+                email: input[1],
+                age: input[2]
+            }
+            console.log(&quot;object is:&quot;, x);
+        }
+    }
+]
+
+//----------------------------------------------------------------------------------------
+
+let found = false;
+for(let i=0; i&lt;controllers.length; i++){
+    // console.log(&quot;index:&quot;,i);
+    // console.log(&quot;controllers[i].name:&quot;, controllers[i].name)
+    if(controllers[i].name === command){
+        found = true;
+        controllers[i].func(input);
+        break;
+    }
+}
+if(!found){
+    console.log(&quot;command not found.&quot;);
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>[{}, {}]</code> (آرایه‌ای از آبجکت‌ها): ساختار داده‌ای قدرتمند برای نگهداری لیست‌های سازمان‌یافته.</li>
+                    <li><code>for(let i=0; i&lt;length; i++)</code>: حلقه تکرار برای پیمایش عناصر آرایه.</li>
+                    <li><code>break;</code>: برای متوقف کردن فوری و خروج از حلقه استفاده می‌شود (وقتی دستورمان را پیدا کردیم دیگر ادامه نمی‌دهیم).</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی تغییر کرد؟ (انقلاب معماری)</div>
+            <p>تمام <code>if/else</code> ها حذف شده‌اند! جای آن‌ها را یک آرایه به نام <code>controllers</code> گرفته و جستجو از طریق حلقه <code>for</code> انجام می‌شود.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>هر عضو آرایه <code>controllers</code> یک آبجکت است که نام دستور و یک تابعِ بی‌نام (Anonymous function) دارد. در حلقه، چک می‌کنیم: <em>آیا نام این کنترلر با دستوری که کاربر وارد کرده یکی است؟</em> اگر بله بود، بلافاصله تابع آن را اجرا می‌کنیم و با <code>break</code> از حلقه خارج می‌شویم. این دقیقاً هسته‌ی مسیریابی (Routing) در فریم‌ورک‌های وب است!</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 02c (فایل‌های app.js و controllers.js) <span class="diff-badge">آپدیت: تفکیک فایل‌ها</span><span class="concept-badge">مفهوم: ES6 Modules</span></h3>
+            <div class="section-title">کد 02c-controllers.js (محل نگهداری منطق):</div>
+            <pre><code class="language-javascript">let controllers = [
+    {
+        name: &quot;sum&quot;,
+        func: function (input) {
+            console.log(&quot;sum is:&quot;, Number(input[0]) + Number(input[1]))
+        }
+    },
+    {
+        name: &quot;minus&quot;,
+        func: function (input) {
+            console.log(&quot;result is:&quot;, Number(input[0]) - Number(input[1]))
+        }
+    },
+    {
+        name: &quot;print&quot;,
+        func: function (input) {
+            let x = {
+                name: input[0],
+                email: input[1],
+                age: input[2]
+            }
+            console.log(&quot;object is:&quot;, x);
+        }
+    }
+]
+
+export {
+    controllers
+}</code></pre>
+            <div class="section-title">کد 02c-app.js (اجرا کننده اصلی):</div>
+            <pre><code class="language-javascript">import {controllers} from &quot;./02c-controllers.js&quot;
+
+let command = process.argv[2];
+let input = process.argv.slice(3);
+
+console.log(&quot;------------------------&quot;);
+console.log(&quot;command is:&quot;, command);
+console.log(&quot;inputs are:&quot;, input);
+
+//----------------------------------------------------------------------------------------
+
+let found = false;
+for(let i=0; i&lt;controllers.length; i++){
+    // console.log(&quot;index:&quot;,i);
+    // console.log(&quot;controllers[i].name:&quot;, controllers[i].name)
+    if(controllers[i].name === command){
+        found = true;
+        controllers[i].func(input);
+        break;
+    }
+}
+if(!found){
+    console.log(&quot;command not found.&quot;);
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>export { name }</code>: به فایل فعلی می‌گوید "این متغیر را در دسترس سایر فایل‌ها قرار بده".</li>
+                    <li><code>import { name } from 'path'</code>: برای وارد کردن اطلاعات از یک فایل دیگر به فایل جاری استفاده می‌شود (معماری ماژولار).</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی تغییر کرد؟</div>
+            <p>کد یکپارچه ما به دو فایل مجزا نصف شد و با سیستم ماژول ES6 با هم در ارتباط هستند.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>در پروژه‌های واقعی هیچکس کل کد سرور را در یک فایل نمی‌نویسد. فایل <code>app.js</code> فقط "دریافت ورودی" و "پیدا کردن مسیر" را بر عهده دارد. فایل <code>controllers.js</code> فقط مغز عملیاتی است. این الگوی تفکیک در معماری MVC بسیار حیاتی است.</p>
+        </div>
+    </div>
+
+    <!-- SESSION 3 -->
+    <div id="s3" class="tab-content">
+        <h2>جلسه سوم: ساخت وب‌سرور واقعی و ورود به دنیای Async</h2>
+        <p>اینجا برنامه ما رسما به یک وب‌سرور تبدیل می‌شود که به درخواست مرورگرها (به جای ترمینال) پاسخ می‌دهد.</p>
+        
+        <div class="exercise">
+            <h3>تمرین 03c.js <span class="diff-badge">آپدیت: ساخت HTTP Server</span><span class="concept-badge">مفهوم: http module و request/response</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">import {createServer} from &quot;http&quot;
+
+
+
+function serverCallback(request, response){
+    console.log(&quot;------------------------&quot;);
+    console.log(&quot;url&quot;, request.url);
+
+    let items = request.url.split(&quot;/&quot;);
+
+    console.log(&quot;items&quot;, items)
+  
+    response.writeHead(200);
+    response.write((Number(items[1]) + Number(items[2])).toString());
+    response.end();
+}
+
+let server = createServer(serverCallback);
+
+server.listen(555);</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>import {createServer} from "http"</code>: ماژول داخلی Node برای ساخت سرور تحت وب.</li>
+                    <li><code>server.listen(555)</code>: سرور را روشن کرده و روی پورت 555 منتظر درخواست‌ها نگه می‌دارد.</li>
+                    <li><code>request.url</code>: آدرسی که کاربر در مرورگر خود وارد کرده است (مثلا /sum/10/20).</li>
+                    <li><code>.split("/")</code>: متن آدرس را بر اساس علامت اسلش تکه تکه کرده و تبدیل به آرایه می‌کند.</li>
+                    <li><code>response.writeHead(200)</code>: کد وضعیت موفقیت (200 OK) را به مرورگر می‌فرستد.</li>
+                    <li><code>response.write()</code> و <code>response.end()</code>: محتوا را به مرورگر فرستاده و اتصال را می‌بندد.</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>متد <code>createServer</code> یک تابع از ما می‌گیرد که به آن <strong>Callback</strong> می‌گوییم. این تابع هر بار که کاربری آدرس <code>http://localhost:555</code> را بزند، فراخوانی می‌شود. با <code>request.url</code> می‌فهمیم چه خواسته، با <code>split</code> اعداد را استخراج می‌کنیم، جمع می‌زنیم و در نهایت با استفاده از <code>response</code> جواب را برای مرورگر کاربر چاپ می‌کنیم.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 03d.js <span class="diff-badge">آپدیت: پیوند Controllerها با وب‌سرور</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">import {createServer} from &quot;http&quot;
+import { writeFile } from &#x27;node:fs&#x27;;
+
+let controllers = [
+    {
+        name: &quot;sum&quot;,
+        func: function (request, response){
+            let items = request.url.split(&quot;/&quot;);
+            response.writeHead(200);
+            response.write((Number(items[2]) + Number(items[3])).toString());
+            response.end();
+        }
+    }
+]
+
+
+function serverCallback(request, response){
+    console.log(&quot;------------------------&quot;);
+    console.log(&quot;url&quot;, request.url);
+
+    let found = false;
+    for(let i=0; i&lt;controllers.length; i++){
+        if(request.url.startsWith(&#x27;/&#x27; + controllers[i].name)){
+            found = true;
+            controllers[i].func(request, response);
+            break;
+        }
+    }
+    if(!found){
+        console.log(&quot;path not found.&quot;);
+    }
+}
+
+let server = createServer(serverCallback);
+
+server.listen(555);</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>.startsWith("text")</code>: یک متد رشته‌ای است که بررسی می‌کند آیا یک متن با کلمه‌ی خاصی شروع می‌شود یا نه (خروجی آن true یا false است).</li>
+                </ul>
+            </div>
+            <div class="section-title">چه چیزی تغییر کرد؟</div>
+            <p>الگوی آرایه <code>controllers</code> که در جلسه دوم ساختیم، به عنوان موتور مسیریاب برای پردازش آدرس‌های وب استفاده شد.</p>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>ما الان یک Router واقعی تحت وب داریم! هرگاه درخواستی بیاید، با متد <code>startsWith</code> چک می‌کنیم که آیا مرورگر (مثلا <code>/sum/5/6</code>) کلمه <code>/sum</code> را صدا زده است؟ اگر بله، <code>request</code> و <code>response</code> را به تابعِ آن کنترلر پاس می‌دهیم.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 03f.js <span class="diff-badge">آپدیت: کار با فایل‌ها روی هارد</span><span class="concept-badge">مفهوم: Asynchronous Programming (ناهمگام)</span></h3>
+            <div class="section-title">کد نوشته شده (فقط کنترلر جدید):</div>
+            <pre><code class="language-javascript">{
+    name: "createFile",
+    func: function (request, response){
+        let items = request.url.split("/");
+        writeFile(items[2], items[3], function(){
+            console.log("createFile done");
+            response.writeHead(200);
+            response.write("createFile done");
+            response.end();
+        });
+    }
+}</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>import { writeFile } from 'node:fs'</code>: ماژول درونی File System برای کار با هارد دیسک.</li>
+                    <li><code>writeFile(filename, content, callback)</code>: دستوری که یک فایل می‌سازد، درون آن محتوا می‌ریزد، و <strong>پس از پایان کار</strong>، تابع سوم (کالبک) را اجرا می‌کند.</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق (مهم‌ترین مفهوم Node.js):</div>
+            <p><strong>ماهیت ناهمگام (Async):</strong> نوشتن فایل روی هارد دیسک کُند است. اگر Node منتظر بماند، کل سایت قفل می‌شود! در عوض، Node دستور را به سیستم‌عامل می‌سپارد و به کار خودش ادامه می‌دهد. آن کالبک یعنی: <em>"سیستم‌عامل عزیز! هر وقت فایلت ساخته شد، این تابع را اجرا کن تا پیام موفقیت بفرستم."</em></p>
+        </div>
+    </div>
+
+    <!-- SESSION 4 -->
+    <div id="s4" class="tab-content">
+        <h2>جلسه چهارم: تکامل، هندل کردن خطاها و ساخت فریم‌ورک پایه</h2>
+        <p>در این بخش، ساختارهای درونی را پنهان می‌کنیم و سرور را به شکل یک فریم‌ورک مستقل (مشابه Express.js) درمی‌آوریم.</p>
+        
+        <div class="exercise">
+            <h3>تمرین 04b.js <span class="diff-badge">آپدیت: مشاهده بصری رفتار Async</span><span class="concept-badge">مفهوم: Event Loop</span></h3>
+            <div class="section-title">کد نوشته شده:</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+import { writeFile } from &#x27;node:fs&#x27;;
+
+let controllers = [
+    {
+        name: &quot;sum&quot;,
+        func: function (request, response){
+            let items = request.url.split(&quot;/&quot;);
+            response.writeHead(200);
+            response.write((Number(items[2]) + Number(items[3])).toString());
+            response.end();
+        }
+    },
+    {
+        name: &quot;createFile&quot;,
+        func: function (request, response){
+            console.log(1);
+            let items = request.url.split(&quot;/&quot;);
+
+            console.log(2);
+            writeFile(items[2], items[3], function(error){
+                if(error){
+                    console.log(&#x27;error&#x27;, error);
+                    response.writeHead(500);
+                    response.write(&quot;createFile error&quot;);
+                    response.end();
+                }
+                else{
+                    console.log(3);
+                    console.log(&quot;createFile done&quot;);
+
+                    response.writeHead(200);
+                    response.write(&quot;createFile done&quot;);
+                    response.end();
+                    console.log(4);
+                }                
+            });
+            console.log(5);
+        }
+    }
+]  
+
+
+function serverCallback(request, response){
+    console.log(&quot;------------------------&quot;);
+    console.log(&quot;url&quot;, request.url);
+
+    let found = false;
+
+    for(let item of controllers){
+        if(request.url.startsWith(&#x27;/&#x27; + item.name)){
+            found = true;
+            console.log(&#x27;before call&#x27;);
+            item.func(request, response);
+            console.log(6);
+            break;
+        }
+    }
+
+    if(!found){
+        console.log(&quot;path not found.&quot;);
+    }
+}
+
+let server = createServer(serverCallback);
+
+server.listen(555);</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>error</code> (آرگومان کالبک): تابع کالبک حالا یک ورودی می‌گیرد که اگر حین کار روی هارد خطایی پیش آمد، داخل آن ریخته می‌شود تا برنامه کرش نکند.</li>
+                    <li><code>response.writeHead(500)</code>: کد استاندارد وب برای خطای سمت سرور (Internal Server Error).</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>مدرس اعداد 1 تا 6 را لاگ گرفته تا ترتیب اجرا شدن کد ناهمگام را ببینید. سرور وارد کنترلر می‌شود، متد <code>writeFile</code> را استارت می‌زند <strong>اما منتظرش نمی‌ماند!</strong>، بلافاصله لاگ (5) و (6) چاپ می‌شوند و سرور آزاد می‌شود. لحظاتی بعد وقتی هارد دیسک کارش تمام شد، کالبک بیدار شده و لاگ‌های درونی (3) و (4) چاپ می‌شوند.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 04d (فایل‌های framework و app) <span class="diff-badge">آپدیت: استخراج هسته سرور</span><span class="concept-badge">مفهوم: Factory Function</span></h3>
+            <div class="section-title">کد 04d-framework.js (مغز فریم‌ورک پنهان):</div>
+            <pre><code class="language-javascript">import { createServer } from &#x27;node:http&#x27;;
+
+function framework(){
+    let controllers = [];
+    let app = {
+        get: function(path, func){
+            controllers.push({
+                name: path,
+                func: func
+            })
+        },
+        listen: function(port, userCallback){
+            function serverCallback(request, response){
+                console.log(&quot;------------------------&quot;);
+                console.log(&quot;url: &quot;, request.url);
+
+                let found = false;
+
+                for(let item of controllers){
+                    if(request.url.startsWith(&#x27;/&#x27; + item.name)){
+                        found = true;
+                        item.func(request, response);
+                        break;
+                    }
+                }
+
+                if(!found){
+                    console.log(&quot;path not found.&quot;);
+                }
+            }
+            let server = createServer(serverCallback);
+            server.listen(port, userCallback);
+        }
+    }
+    return app;
+}
+
+export { 
+    framework 
+}</code></pre>
+            <div class="section-title">کد 04d-app.js (رابط کاربری تمیز ما):</div>
+            <pre><code class="language-javascript">import { framework }  from &#x27;./04d-framework.js&#x27;;
+import { writeFile, readFile, unlink } from &#x27;node:fs&#x27;;
+
+const app = framework();
+const port = 3000;
+
+app.get(&#x27;sum&#x27;, function(request, response){
+    let items = request.url.split(&quot;/&quot;);
+    response.writeHead(200);
+    response.write((Number(items[2]) + Number(items[3])).toString());
+    response.end();
+});
+
+app.get(&#x27;createFile&#x27;, function (request, response){
+    let items = request.url.split(&quot;/&quot;);
+
+    writeFile(items[2], items[3], function(error){
+        if(error){
+            console.log(&#x27;error&#x27;, error);
+            response.writeHead(500);
+            response.write(&quot;createFile error&quot;);
+            response.end();
+        }
+        else{
+            console.log(3);
+            console.log(&quot;createFile done&quot;);
+
+            response.writeHead(200);
+            response.write(&quot;createFile done&quot;);
+            response.end();
+            console.log(4);
+        }                
+    });
+});
+
+app.get(&#x27;readFile&#x27;, function (request, response){
+    let items = request.url.split(&quot;/&quot;);
+
+    readFile(items[2], function(error, body){
+        if(error){
+            response.writeHead(500);
+            response.write(&quot;readFile error&quot;);
+            response.end();
+        }
+        else{
+            console.log(&quot;readFile done&quot;);
+
+            response.writeHead(200);
+            response.write(body);
+            response.end();
+        }                
+    });
+});
+
+app.listen(port, function(){
+  console.log(&#x27;app listening on port: &#x27;, port);
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>.push()</code>: عنصری را به انتهای یک آرایه اضافه می‌کند. (استفاده در `app.get`)</li>
+                    <li><code>app.get()</code> و <code>app.listen()</code>: اینها متدهای سفارشی‌ای هستند که خود مدرس در شیء <code>app</code> تعریف کرده است تا استفاده از سرور برای برنامه‌نویسان راحت شود.</li>
+                </ul>
+            </div>
+            <div class="section-title">تغییر شگفت‌انگیز معماری:</div>
+            <p>کد اصلی ما (<code>app.js</code>) دیگر اثری از حلقه <code>for</code> و متد <code>startsWith</code> ندارد. اینجا یاد می‌گیرید که فریم‌ورک Express.js چطور کار می‌کند! متد <code>app.get</code> مسیرها را به آرایه مخفی پوش می‌کند و <code>app.listen</code> همان موتور مسیریاب را استارت می‌زند.</p>
+        </div>
+
+        <div class="exercise">
+            <h3>تمرین 04e-app.js <span class="diff-badge">آپدیت: تست قدرت فریم‌ورک</span><span class="concept-badge">مفهوم: ماژول fs.unlink</span></h3>
+            <div class="section-title">بخشی از کد جدید افزوده شده:</div>
+            <pre><code class="language-javascript">app.get('deleteFile', function(request, response){
+    let items = request.url.split("/");
+    unlink(items[2], function(error){ ... });
+});</code></pre>
+            <div class="commands-box">
+                <h4>🛠 دستورات جدید این بخش:</h4>
+                <ul>
+                    <li><code>unlink()</code>: متدی از ماژول <code>fs</code> است که برای حذف (پاک کردن) یک فایل از روی سیستم استفاده می‌شود. (مانند writeFile رفتار ناهمگام دارد).</li>
+                    <li><code>readFile()</code>: فایلی را می‌خواند و دیتای آن را درون پارامتر دوم کالبک (به نام body) برمی‌گرداند تا به کاربر بفرستیم.</li>
+                </ul>
+            </div>
+            <div class="section-title">توضیح گام به گام و عمیق:</div>
+            <p>حالا که فریم‌ورک منعطفی داریم، اضافه کردن امکانات به برنامه بسیار راحت است. در این تمرین با متدهای <code>readFile</code> برای خواندن محتوا و <code>unlink</code> برای حذف فایل یک API ساده ساخته شده است که کاملا ناهمگام کار می‌کند.</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script>
+        function openTab(evt, tabName) {
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            let tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
