@@ -55,14 +55,14 @@ function framework(){
                     let found = false;
                     for(let item of controllers){
                         if(request.url.startsWith('/' + item.name) && item.method === request.method){
-                            console.log("(framework) controller: ", item.name);
+                            console.log("(framework) controller found: ", item.name);
                             found = true;
                             item.func(request, response);
                             break;
                         }
                     }
                     if(!found){
-                        console.log("path not found.");
+                        console.log("(framework) controller not found.");
                     }
                 });
             }
